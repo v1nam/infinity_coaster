@@ -2,7 +2,7 @@ from math import sin, cos, pi
 
 from direct.showbase.ShowBase import ShowBase
 from direct.task.Task import Task
-from panda3d.core import Vec3
+from panda3d.core import Vec3, NodePath
 
 
 class Game(ShowBase):
@@ -21,18 +21,15 @@ class Game(ShowBase):
 
         track_length = 2
         for i in range(20):
-            track = self.loader.loadModel("models/trackcoloured.bam")
-            track.set_pos(start_pos[0], start_pos[1] + track_length / 2, start_pos[2])
-            parallel_vec = Vec3(0, cos(pitch), sin(pitch))
-            normal_vec = Vec3(0, cos(pitch + pi / 2), sin(pitch + pi / 2))
-            track.set_p(pitch_deg)
-            track.set_pos(
-                track.getPos()
-                + normal_vec * track_length / 2 * sin(del_pitch)
-                + parallel_vec * track_length / 2 * cos(del_pitch)
-            )
+            track_dummy_node = NodePath("track_dummy_node")
+            track_dummy_node.reparentTo(self.render)
 
-            track.reparentTo(self.render)
+            track = self.loader.loadModel("models/trackcoloured.bam")
+            track.reparentTo(track_dummy_node)
+            track.set_pos(0, 1, 0)
+
+            track_dummy_node.set_pos(start_pos[0], start_pos[1] + track_length / 2, start_pos[2])
+            track_dummy_node.set_p(pitch_deg)
 
             start_pos = (
                 start_pos[0],
