@@ -28,7 +28,7 @@ class Game(ShowBase):
             track.reparentTo(track_dummy_node)
             track.set_pos(0, 1, 0)
 
-            track_dummy_node.set_pos(start_pos[0], start_pos[1] + track_length / 2, start_pos[2])
+            track_dummy_node.set_pos(start_pos)
             track_dummy_node.set_p(pitch_deg)
 
             start_pos = (
