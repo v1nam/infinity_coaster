@@ -2,7 +2,7 @@ from math import sin, cos, pi
 
 from direct.showbase.ShowBase import ShowBase
 from direct.task.Task import Task
-from panda3d.core import Vec3, NodePath
+from panda3d.core import Vec3, NodePath, Point3F
 
 
 class Game(ShowBase):
@@ -12,33 +12,41 @@ class Game(ShowBase):
         self.ground = self.loader.loadModel("models/ground.bam")
         self.ground.reparentTo(self.render)
 
-        start_pos = (0, -10, 5)
+        start_pos = Point3F(0, -10, 5)
         pitch_deg = 0
         pitch = 0
+        heading_deg = 0
+        heading = 0
 
         del_pitch_deg = 10
         del_pitch = del_pitch_deg * pi / 180
+        del_heading_deg = 1
+        del_heading = del_heading_deg * pi / 180
 
         track_length = 2
-        for i in range(20):
+        for i in range(40):
             track_dummy_node = NodePath("track_dummy_node")
             track_dummy_node.reparentTo(self.render)
 
             track = self.loader.loadModel("models/trackcoloured.bam")
             track.reparentTo(track_dummy_node)
-            track.set_pos(0, 1, 0)
+            track.set_pos(0, track_length / 2, 0)
 
             track_dummy_node.set_pos(start_pos)
+            track_dummy_node.set_h(heading_deg)
             track_dummy_node.set_p(pitch_deg)
 
-            start_pos = (
-                start_pos[0],
-                start_pos[1] + track_length * cos(pitch),
-                start_pos[2] + track_length * sin(pitch),
-            )
+            track_direction = Vec3(track.getPos(self.render) - track_dummy_node.getPos(self.render)).normalized()
+
+            start_pos = start_pos + track_direction * track_length
             pitch_deg += del_pitch_deg
             pitch += del_pitch
-
+            if i < 20:
+                heading_deg += del_heading_deg
+                heading += del_heading
+            else:
+                heading_deg -= del_heading_deg
+                heading -= del_heading
         self.taskMgr.add(self.spin_camera_task, "SpinCameraTask")
 
     def spin_camera_task(self, task):
