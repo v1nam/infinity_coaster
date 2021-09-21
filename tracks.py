@@ -47,6 +47,24 @@ class Game(ShowBase):
         self.ground = self.loader.loadModel("models/ground.bam")
         self.ground.reparentTo(self.render)
 
+        self.set_tracks()
+
+        self.player_node = NodePath("player_node")
+        self.player_node.reparentTo(self.render)
+        self.player_node.set_pos(self.current_track.start_pos)
+        c = self.loader.loadModel("models/coaster.bam")
+        c.reparentTo(self.player_node)
+        d = self.loader.loadModel("models/coaster.bam")
+        d.reparentTo(self.player_node)
+        d.set_pos(0, 0, 1)
+        d.set_scale(0.5, 0.5, 0.5)
+        # self.camera.reparentTo(self.player_node)
+        self.camera.set_pos(self.tracks.head.normal)
+
+        self.taskMgr.add(self.spin_camera_task, "SpinCameraTask")
+        self.taskMgr.add(self.move_player_task, "MovePlayerTask")
+
+    def set_tracks(self):
         self.tracks = self.generate_loop_tracks(
             num_tracks=20,
             start_pos=Point3F(0, -10, 5),
@@ -93,21 +111,6 @@ class Game(ShowBase):
         )
         self.current_track = self.tracks.head
 
-        self.player_node = NodePath("player_node")
-        self.player_node.reparentTo(self.render)
-        self.player_node.set_pos(self.current_track.start_pos)
-        c = self.loader.loadModel("models/coaster.bam")
-        c.reparentTo(self.player_node)
-        d = self.loader.loadModel("models/coaster.bam")
-        d.reparentTo(self.player_node)
-        d.set_pos(0, 0, 1)
-        d.set_scale(0.5, 0.5, 0.5)
-        # self.camera.reparentTo(self.player_node)
-        # self.camera.set_pos(self.tracks.head.normal * 2)
-
-        self.taskMgr.add(self.spin_camera_task, "SpinCameraTask")
-        self.taskMgr.add(self.move_player_task, "MovePlayerTask")
-
     def generate_loop_tracks(
         self,
         num_tracks: int,
@@ -132,7 +135,7 @@ class Game(ShowBase):
         track_list = TrackList()
 
         normal_rotation_quat = Quat()
-        normal_rotation_quat.setFromAxisAngleRad(del_pitch, Vec3(-1, 0, 0))
+        normal_rotation_quat.setFromAxisAngleRad(-del_pitch, Vec3(-1, 0, 0))
         track_normal = Vec3(0, 0, 1)
 
         for i in range(num_tracks):
@@ -155,6 +158,11 @@ class Game(ShowBase):
                     track_direction, track_normal, track_dummy_node.getPos(self.render)
                 )
             )
+            # e = self.loader.loadModel("models/coaster.bam")
+            # e.setScale(0.5, 0.5, 0.5)
+            # e.reparentTo(self.render)
+            # tr = track_list.tail
+            # e.set_pos(tr.start_pos + tr.normal)
 
             start_pos = start_pos + track_direction * Track.LENGTH
             track_normal = normal_rotation_quat.xform(track_normal)
@@ -179,15 +187,23 @@ class Game(ShowBase):
     def move_player_task(self, _task):
         dt = ClockObject.getGlobalClock().dt
 
-        self.player_node.set_pos(
-            self.player_node.get_pos() + self.current_track.direction * self.speed * dt
-        )
-
         if (
             self.player_node.get_pos() - self.current_track.start_pos
         ).length() > Track.LENGTH and self.current_track.next_track is not None:
             self.current_track = self.current_track.next_track
-            self.player_node.lookAt(self.player_node.get_pos() + self.current_track.direction)
+        self.player_node.set_pos(
+            self.player_node.get_pos() + self.current_track.direction * self.speed * dt
+        )
+
+        self.player_node.lookAt(
+            self.player_node.get_pos() + self.current_track.direction,
+            self.current_track.normal
+        )
+        self.player_node.headsUp(
+            self.player_node.get_pos() + self.current_track.direction,
+            self.current_track.normal
+        )
+
         return Task.cont
 
 
