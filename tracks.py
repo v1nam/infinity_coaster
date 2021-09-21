@@ -3,8 +3,7 @@ from typing import Optional
 
 from direct.showbase.ShowBase import ShowBase
 from direct.task.Task import Task
-from panda3d.core import Vec3, NodePath, Point3F, ClockObject, Quat
-from pandac.PandaModules import WindowProperties
+from panda3d.core import Vec3, NodePath, Point3F, ClockObject, Quat, WindowProperties
 
 
 class Track:
