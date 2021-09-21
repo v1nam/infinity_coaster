@@ -1,9 +1,10 @@
-from math import sin, cos, pi
+import sys
+from math import pi
 from typing import Optional
 
 from direct.showbase.ShowBase import ShowBase
 from direct.task.Task import Task
-from panda3d.core import Vec3, NodePath, Point3F, ClockObject, Quat, WindowProperties
+from panda3d.core import ClockObject, NodePath, Point3F, Quat, Vec3, WindowProperties
 
 
 class Track:
@@ -60,12 +61,14 @@ class Game(ShowBase):
         self.camera.set_pos(self.tracks.head.normal)
 
         self.center = []
+        self.set_center()
         self.rot_v = 0
         self.rot_h = 0
         self.mouse_sensitivity = 30
 
         self.taskMgr.add(self.move_player_task, "MovePlayerTask")
         self.accept("aspectRatioChanged", self.set_center)
+        self.accept("escape", sys.exit)
 
     def set_tracks(self):
         self.tracks = self.generate_loop_tracks(
