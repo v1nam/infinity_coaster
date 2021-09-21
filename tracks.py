@@ -101,8 +101,6 @@ class Game(ShowBase):
         del_pitch = del_pitch_deg * pi / 180
         del_heading = del_heading_deg * pi / 180
 
-        track_length = 2
-
         track_list = TrackList()
 
         normal_rotation_quat = Quat()
@@ -115,7 +113,7 @@ class Game(ShowBase):
 
             track = self.loader.loadModel("models/trackcoloured.bam")
             track.reparentTo(track_dummy_node)
-            track.set_pos(0, track_length / 2, 0)
+            track.set_pos(0, Track.LENGTH / 2, 0)
 
             track_dummy_node.set_pos(start_pos)
             track_dummy_node.set_h(heading_deg)
@@ -130,11 +128,11 @@ class Game(ShowBase):
                 )
             )
 
-            start_pos = start_pos + track_direction * track_length
+            start_pos = start_pos + track_direction * Track.LENGTH
             track_normal = normal_rotation_quat.xform(track_normal)
             pitch_deg += del_pitch_deg
             pitch += del_pitch
-            if i < 20:
+            if i < num_tracks / 2:
                 heading_deg += del_heading_deg
                 heading += del_heading
             else:
