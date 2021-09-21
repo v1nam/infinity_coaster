@@ -25,6 +25,8 @@ class TrackList:
 
     def append(self, track: Track) -> None:
         track.prev_track = self.tail
+        if self.tail:
+            self.tail.next_track = track
         track.next_track = None
         self.tail = track
         if self.head is None:
@@ -39,6 +41,8 @@ class TrackList:
 class Game(ShowBase):
     def __init__(self):
         super().__init__()
+        self.disable_mouse()
+        self.speed = 4
 
         self.ground = self.loader.loadModel("models/ground.bam")
         self.ground.reparentTo(self.render)
@@ -87,8 +91,22 @@ class Game(ShowBase):
                 initial_direction=Vec3(-1, 0, 0),
             )
         )
+        self.current_track = self.tracks.head
+
+        self.player_node = NodePath("player_node")
+        self.player_node.reparentTo(self.render)
+        self.player_node.set_pos(self.current_track.start_pos)
+        c = self.loader.loadModel("models/coaster.bam")
+        c.reparentTo(self.player_node)
+        d = self.loader.loadModel("models/coaster.bam")
+        d.reparentTo(self.player_node)
+        d.set_pos(0, 0, 1)
+        d.set_scale(0.5, 0.5, 0.5)
+        # self.camera.reparentTo(self.player_node)
+        # self.camera.set_pos(self.tracks.head.normal * 2)
 
         self.taskMgr.add(self.spin_camera_task, "SpinCameraTask")
+        self.taskMgr.add(self.move_player_task, "MovePlayerTask")
 
     def generate_loop_tracks(
         self,
@@ -154,8 +172,22 @@ class Game(ShowBase):
     def spin_camera_task(self, task):
         angle_degrees = task.time * 40.0
         angle_radians = angle_degrees * (pi / 180.0)
-        self.camera.set_pos(50 * sin(angle_radians), -50 * cos(angle_radians), 30)
-        self.camera.set_hpr(angle_degrees, -20, 0)
+        self.camera.set_pos(Point3F(0, -40, 10))
+        self.camera.set_hpr(0, 0, 0)
+        return Task.cont
+
+    def move_player_task(self, _task):
+        dt = ClockObject.getGlobalClock().dt
+
+        self.player_node.set_pos(
+            self.player_node.get_pos() + self.current_track.direction * self.speed * dt
+        )
+
+        if (
+            self.player_node.get_pos() - self.current_track.start_pos
+        ).length() > Track.LENGTH and self.current_track.next_track is not None:
+            self.current_track = self.current_track.next_track
+            self.player_node.lookAt(self.player_node.get_pos() + self.current_track.direction)
         return Task.cont
 
 
