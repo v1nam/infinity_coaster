@@ -52,16 +52,9 @@ class Game(ShowBase):
         self.player_node = NodePath("player_node")
         self.player_node.reparentTo(self.render)
         self.player_node.set_pos(self.current_track.start_pos)
-        c = self.loader.loadModel("models/coaster.bam")
-        c.reparentTo(self.player_node)
-        d = self.loader.loadModel("models/coaster.bam")
-        d.reparentTo(self.player_node)
-        d.set_pos(0, 0, 1)
-        d.set_scale(0.5, 0.5, 0.5)
-        # self.camera.reparentTo(self.player_node)
+        self.camera.reparentTo(self.player_node)
         self.camera.set_pos(self.tracks.head.normal)
 
-        self.taskMgr.add(self.spin_camera_task, "SpinCameraTask")
         self.taskMgr.add(self.move_player_task, "MovePlayerTask")
 
     def set_tracks(self):
@@ -177,13 +170,6 @@ class Game(ShowBase):
 
         return track_list
 
-    def spin_camera_task(self, task):
-        angle_degrees = task.time * 40.0
-        angle_radians = angle_degrees * (pi / 180.0)
-        self.camera.set_pos(Point3F(0, -40, 10))
-        self.camera.set_hpr(0, 0, 0)
-        return Task.cont
-
     def move_player_task(self, _task):
         dt = ClockObject.getGlobalClock().dt
 
@@ -196,10 +182,6 @@ class Game(ShowBase):
         )
 
         self.player_node.lookAt(
-            self.player_node.get_pos() + self.current_track.direction,
-            self.current_track.normal
-        )
-        self.player_node.headsUp(
             self.player_node.get_pos() + self.current_track.direction,
             self.current_track.normal
         )
