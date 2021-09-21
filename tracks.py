@@ -44,11 +44,21 @@ class Game(ShowBase):
         self.ground.reparentTo(self.render)
 
         self.tracks = self.generate_loop_tracks(
-            num_tracks=40,
+            num_tracks=20,
             start_pos=Point3F(0, -10, 5),
-            del_pitch_deg=10,
-            del_heading_deg=1,
+            del_pitch_deg=0,
+            del_heading_deg=0,
             initial_direction=Vec3(0, 1, 0),
+        )
+
+        self.tracks.extend(
+            self.generate_loop_tracks(
+                num_tracks=40,
+                start_pos=self.tracks.tail.end_pos,
+                del_pitch_deg=10,
+                del_heading_deg=1,
+                initial_direction=Vec3(0, 1, 0),
+            )
         )
         self.tracks.extend(
             self.generate_loop_tracks(
@@ -56,7 +66,7 @@ class Game(ShowBase):
                 start_pos=self.tracks.tail.end_pos,
                 del_pitch_deg=0,
                 del_heading_deg=0,
-                initial_direction=self.tracks.tail.end_pos + Vec3(0, 1, 0),
+                initial_direction=Vec3(0, 1, 0),
             )
         )
         self.tracks.extend(
@@ -65,7 +75,7 @@ class Game(ShowBase):
                 start_pos=self.tracks.tail.end_pos,
                 del_pitch_deg=0,
                 del_heading_deg=10,
-                initial_direction=self.tracks.tail.end_pos + Vec3(0, 1, 0),
+                initial_direction=Vec3(0, 1, 0),
             )
         )
         self.tracks.extend(
@@ -74,7 +84,7 @@ class Game(ShowBase):
                 start_pos=self.tracks.tail.end_pos,
                 del_pitch_deg=0,
                 del_heading_deg=0,
-                initial_direction=self.tracks.tail.end_pos + Vec3(-1, 0, 0),
+                initial_direction=Vec3(-1, 0, 0),
             )
         )
 
@@ -90,7 +100,7 @@ class Game(ShowBase):
     ) -> TrackList:
 
         dummy = NodePath("dummy")
-        dummy.setPos(start_pos)
+        # dummy.setPos(start_pos)
         dummy.lookAt(initial_direction)
 
         pitch_deg = dummy.get_p()
