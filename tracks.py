@@ -47,7 +47,7 @@ class Game(ShowBase):
         props.setCursorHidden(True)
         base.win.requestProperties(props)
 
-        self.speed = 8
+        self.speed = 12
 
         self.ground = self.loader.loadModel("models/ground.bam")
         self.ground.reparentTo(self.render)
@@ -106,6 +106,34 @@ class Game(ShowBase):
                 initial_direction=Vec3(0, 1, 0),
             )
         )
+        self.tracks.extend(
+            self.generate_loop_tracks(
+                num_tracks=10,
+                start_pos=self.tracks.tail.end_pos,
+                del_pitch_deg=-5,
+                del_heading_deg=0,
+                initial_direction=Vec3(0, 1, 0)
+            )
+        )
+        self.tracks.extend(
+            self.generate_loop_tracks(
+                num_tracks=10,
+                start_pos=self.tracks.tail.end_pos,
+                del_pitch_deg=5,
+                del_heading_deg=0,
+                initial_direction=Vec3(0, 1, 0)
+            )
+        )
+        self.tracks.extend(
+            self.generate_loop_tracks(
+                num_tracks=10,
+                start_pos=self.tracks.tail.end_pos,
+                del_pitch_deg=0,
+                del_heading_deg=0,
+                initial_direction=Vec3(0, 1, 0)
+            )
+        )
+
         self.current_track = self.tracks.head
 
     def generate_loop_tracks(
@@ -180,17 +208,21 @@ class Game(ShowBase):
         if (
             self.player_node.get_pos() - self.current_track.start_pos
         ).length() > Track.LENGTH and self.current_track.next_track is not None:
-            self.current_track = self.current_track.next_track
+            self.current_track = self.current_track.next_track 
+
         self.player_node.set_pos(
             self.player_node.get_pos() + self.current_track.direction * self.speed * dt
         )
+        self.camera.set_pos(self.current_track.normal * 2)
 
         if base.mouseWatcherNode.hasMouse():
             mx = base.mouseWatcherNode.getMouseX()
             my = base.mouseWatcherNode.getMouseY()
             self.rot_h += -1 * self.mouse_sensitivity * mx
             self.rot_v += self.mouse_sensitivity * my
-            camera.setHpr(self.rot_h, self.rot_v, 0)
+            self.rot_v = max(-90, self.rot_v)
+            self.rot_v = min(90, self.rot_v)
+            self.camera.setHpr(self.rot_h, self.rot_v, 0)
         base.win.movePointer(0, self.center[0], self.center[1])
         return Task.cont
 
