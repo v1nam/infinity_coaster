@@ -4,6 +4,7 @@ from typing import Optional
 from direct.showbase.ShowBase import ShowBase
 from direct.task.Task import Task
 from panda3d.core import Vec3, NodePath, Point3F, ClockObject, Quat
+from pandac.PandaModules import WindowProperties
 
 
 class Track:
@@ -42,7 +43,11 @@ class Game(ShowBase):
     def __init__(self):
         super().__init__()
         self.disable_mouse()
-        self.speed = 4
+        props = WindowProperties()
+        props.setCursorHidden(True)
+        base.win.requestProperties(props)
+
+        self.speed = 8
 
         self.ground = self.loader.loadModel("models/ground.bam")
         self.ground.reparentTo(self.render)
@@ -55,7 +60,13 @@ class Game(ShowBase):
         self.camera.reparentTo(self.player_node)
         self.camera.set_pos(self.tracks.head.normal)
 
+        self.center = []
+        self.rot_v = 0
+        self.rot_h = 0
+        self.mouse_sensitivity = 30
+
         self.taskMgr.add(self.move_player_task, "MovePlayerTask")
+        self.accept("aspectRatioChanged", self.set_center)
 
     def set_tracks(self):
         self.tracks = self.generate_loop_tracks(
@@ -91,15 +102,6 @@ class Game(ShowBase):
                 del_pitch_deg=0,
                 del_heading_deg=10,
                 initial_direction=Vec3(0, 1, 0),
-            )
-        )
-        self.tracks.extend(
-            self.generate_loop_tracks(
-                num_tracks=10,
-                start_pos=self.tracks.tail.end_pos,
-                del_pitch_deg=0,
-                del_heading_deg=0,
-                initial_direction=Vec3(-1, 0, 0),
             )
         )
         self.current_track = self.tracks.head
@@ -181,12 +183,17 @@ class Game(ShowBase):
             self.player_node.get_pos() + self.current_track.direction * self.speed * dt
         )
 
-        self.player_node.lookAt(
-            self.player_node.get_pos() + self.current_track.direction,
-            self.current_track.normal
-        )
-
+        if base.mouseWatcherNode.hasMouse():
+            mx = base.mouseWatcherNode.getMouseX()
+            my = base.mouseWatcherNode.getMouseY()
+            self.rot_h += -1 * self.mouse_sensitivity * mx
+            self.rot_v += self.mouse_sensitivity * my
+            camera.setHpr(self.rot_h, self.rot_v, 0)
+        base.win.movePointer(0, self.center[0], self.center[1])
         return Task.cont
+
+    def set_center(self):
+        self.center = [base.win.getXSize() // 2, base.win.getYSize() // 2]
 
 
 if __name__ == "__main__":
