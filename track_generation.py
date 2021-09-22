@@ -156,4 +156,11 @@ class TrackCollectionGenerator:
             del_heading_deg=1,
             is_loop=True
         )
+        loop.extend(self._generate_track_collection(
+            start_pos=loop.tail.end_pos,
+            initial_direction=Vec3(loop.tail.direction.x, loop.tail.direction.y, 0).normalized(),
+            num_tracks=2,
+            del_pitch_deg=0,
+            del_heading_deg=0,
+        ))
         return loop
