@@ -3,17 +3,38 @@ import sys
 from functools import partial
 from typing import Set
 
+from direct.gui.DirectButton import DirectButton
 from direct.gui.OnscreenImage import OnscreenImage
+from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBase import ShowBase
 from direct.task.Task import Task
 from panda3d.core import ClockObject, NodePath, Point3F, Vec3, WindowProperties
 
 from track_generation import Track, TrackCollectionGenerator
-
+from menu import Menu
 
 class Game(ShowBase):
     def __init__(self):
         super().__init__()
+
+        self.track_generator = TrackCollectionGenerator(self.render, self.loader)
+        self.track_collections = {
+            "straight": self.track_generator.generate_straight,
+            "ramp_up": partial(self.track_generator.generate_ramp, type_="up"),
+            "ramp_down": partial(self.track_generator.generate_ramp, type_="down"),
+            "turn_left": partial(self.track_generator.generate_turn, type_="left"),
+            "turn_right": partial(self.track_generator.generate_turn, type_="right"),
+            "loop": self.track_generator.generate_loop,
+        }
+        self.start_menu = Menu({"Start New Game": self.start_game, "ooga booga": self.show_credits})
+        self.start_menu.show()
+        # self.start_game()
+
+    def show_credits(self):
+        _ = OnscreenText("maed by vinam & hsp")
+        b = DirectButton(text="back", pos=(0, 0, -0.75), scale=(0.1, 1, 0.1), command=lambda: [b.destroy(), _.destroy(), self.start_menu.show()])
+
+    def start_game(self):
         self.disable_mouse()
         props = WindowProperties()
         props.setCursorHidden(True)
@@ -25,8 +46,6 @@ class Game(ShowBase):
         self.ground = self.loader.loadModel("models/ground.bam")
         self.ground.reparentTo(self.render)
 
-        self.track_generator = TrackCollectionGenerator(self.render, self.loader)
-
         self.set_tracks()
 
         self.player_node = NodePath("player_node")
@@ -34,15 +53,6 @@ class Game(ShowBase):
         self.player_node.set_pos(self.current_track.start_pos)
         self.camera.reparentTo(self.player_node)
         self.camera.set_pos(self.tracks.head.normal)
-
-        self.track_collections = {
-            "straight": self.track_generator.generate_straight,
-            "ramp_up": partial(self.track_generator.generate_ramp, type_="up"),
-            "ramp_down": partial(self.track_generator.generate_ramp, type_="down"),
-            "turn_left": partial(self.track_generator.generate_turn, type_="left"),
-            "turn_right": partial(self.track_generator.generate_turn, type_="right"),
-            "loop": self.track_generator.generate_loop,
-        }
 
         icon_bar_x = 1.33333 - 0.1 - 0.2
         self.icons = {
