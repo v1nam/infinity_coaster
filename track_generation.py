@@ -49,6 +49,7 @@ class TrackCollectionGenerator:
         del_pitch_deg: float,
         del_heading_deg: float,
         initial_direction: Vec3,
+        is_loop: bool = False
     ) -> TrackList:
 
         dummy = NodePath("dummy")
@@ -93,8 +94,12 @@ class TrackCollectionGenerator:
             track_normal = normal_rotation_quat.xform(track_normal)
             pitch_deg += del_pitch_deg
             pitch += del_pitch
-            heading_deg += del_heading_deg
-            heading += del_heading
+            if not is_loop or i < num_tracks // 2:
+                heading_deg += del_heading_deg
+                heading += del_heading
+            else:
+                heading_deg -= del_heading_deg
+                heading -= del_heading
 
         return track_list
 
@@ -112,13 +117,21 @@ class TrackCollectionGenerator:
     def generate_ramp(
         self, start_pos: Point3F, initial_direction: Vec3, type_: Literal["up", "down"], num_tracks: int = 10
     ) -> TrackList:
-        return self._generate_track_collection(
+        ramp = self._generate_track_collection(
             start_pos=start_pos,
             initial_direction=initial_direction,
             num_tracks=num_tracks,
             del_pitch_deg=10 if type_ == "up" else -10,
             del_heading_deg=0,
         )
+        ramp.extend(self._generate_track_collection(
+            start_pos=ramp.tail.end_pos,
+            initial_direction=Vec3(ramp.tail.direction.x, ramp.tail.direction.y, 0).normalized(),
+            num_tracks=2,
+            del_pitch_deg=0,
+            del_heading_deg=0,
+        ))
+        return ramp
 
     def generate_turn(
         self,
@@ -138,17 +151,9 @@ class TrackCollectionGenerator:
         loop = self._generate_track_collection(
             start_pos=start_pos,
             initial_direction=initial_direction,
-            num_tracks=num_tracks // 2,
+            num_tracks=num_tracks,
             del_pitch_deg=10,
             del_heading_deg=1,
-        )
-        loop.extend(
-            self._generate_track_collection(
-                start_pos=loop.tail.end_pos,
-                initial_direction=loop.tail.direction,
-                num_tracks=num_tracks // 2,
-                del_pitch_deg=10,
-                del_heading_deg=-1,
-            )
+            is_loop=True
         )
         return loop
