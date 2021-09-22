@@ -1,9 +1,11 @@
 import sys
+from functools import partial
 from math import pi
 from typing import Optional
 
 from direct.showbase.ShowBase import ShowBase
 from direct.task.Task import Task
+from direct.gui.OnscreenImage import OnscreenImage
 from panda3d.core import ClockObject, NodePath, Point3F, Quat, Vec3, WindowProperties
 
 
@@ -60,6 +62,55 @@ class Game(ShowBase):
         self.camera.reparentTo(self.player_node)
         self.camera.set_pos(self.tracks.head.normal)
 
+        self.track_collections = {
+            "straight": partial(
+                self.generate_loop_tracks,
+                num_tracks=10,
+                del_pitch_deg=0,
+                del_heading_deg=0,
+            ),
+            "ramp_up": partial(
+                self.generate_loop_tracks,
+                num_tracks=10,
+                del_pitch_deg=10,
+                del_heading_deg=0,
+            ),
+            "ramp_down": partial(
+                self.generate_loop_tracks,
+                num_tracks=10,
+                del_pitch_deg=-10,
+                del_heading_deg=0,
+            ),
+            "turn_left": partial(
+                self.generate_loop_tracks,
+                num_tracks=10,
+                del_pitch_deg=0,
+                del_heading_deg=10,
+            ),
+            "turn_right": partial(
+                self.generate_loop_tracks,
+                num_tracks=10,
+                del_pitch_deg=0,
+                del_heading_deg=-10,
+            ),
+            "loop": partial(
+                self.generate_loop_tracks,
+                num_tracks=0,
+                del_pitch_deg=0,
+                del_heading_deg=-10,
+            ),
+        }
+
+        icon_bar_x = 1.33333 - 0.1 - 0.2
+        self.icons = [
+            OnscreenImage(
+                image=f"models/{icon_name}_icon.png",
+                pos=(icon_bar_x, 0, (i * 2 / 7) - 1),
+                scale=(0.1, 1, 0.1),
+            )
+            for i, icon_name in enumerate(self.track_collections.keys(), start=1)
+        ]
+
         self.center = []
         self.set_center()
         self.rot_v = 0
@@ -69,6 +120,17 @@ class Game(ShowBase):
         self.taskMgr.add(self.move_player_task, "MovePlayerTask")
         self.accept("aspectRatioChanged", self.set_center)
         self.accept("escape", sys.exit)
+
+        for i, collection in enumerate(self.track_collections.keys(), start=1):
+            self.accept(str(i), self.place_track, [collection])
+
+    def place_track(self, collection):
+        print(collection)
+        new_tracks = self.track_collections[collection](
+            start_pos=self.tracks.tail.end_pos,
+            initial_direction=self.tracks.tail.direction,
+        )
+        self.tracks.extend(new_tracks)
 
     def set_tracks(self):
         self.tracks = self.generate_loop_tracks(
@@ -112,7 +174,7 @@ class Game(ShowBase):
                 start_pos=self.tracks.tail.end_pos,
                 del_pitch_deg=-5,
                 del_heading_deg=0,
-                initial_direction=Vec3(0, 1, 0)
+                initial_direction=Vec3(0, 1, 0),
             )
         )
         self.tracks.extend(
@@ -121,7 +183,7 @@ class Game(ShowBase):
                 start_pos=self.tracks.tail.end_pos,
                 del_pitch_deg=5,
                 del_heading_deg=0,
-                initial_direction=Vec3(0, 1, 0)
+                initial_direction=Vec3(0, 1, 0),
             )
         )
         self.tracks.extend(
@@ -130,7 +192,7 @@ class Game(ShowBase):
                 start_pos=self.tracks.tail.end_pos,
                 del_pitch_deg=0,
                 del_heading_deg=0,
-                initial_direction=Vec3(0, 1, 0)
+                initial_direction=Vec3(0, 1, 0),
             )
         )
 
@@ -183,11 +245,6 @@ class Game(ShowBase):
                     track_direction, track_normal, track_dummy_node.getPos(self.render)
                 )
             )
-            # e = self.loader.loadModel("models/coaster.bam")
-            # e.setScale(0.5, 0.5, 0.5)
-            # e.reparentTo(self.render)
-            # tr = track_list.tail
-            # e.set_pos(tr.start_pos + tr.normal)
 
             start_pos = start_pos + track_direction * Track.LENGTH
             track_normal = normal_rotation_quat.xform(track_normal)
