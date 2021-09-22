@@ -1,6 +1,7 @@
 import random
 import sys
 from functools import partial
+from typing import Set
 
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.showbase.ShowBase import ShowBase
@@ -112,7 +113,7 @@ class Game(ShowBase):
     def set_center(self):
         self.center = [base.win.getXSize() // 2, base.win.getYSize() // 2]
 
-    def generate_active_collections(self) -> set[str]:
+    def generate_active_collections(self) -> Set[str]:
         k = random.choices([1, 2, 3], weights=[0.1, 0.8, 0.1], k=1)[0]
         return set(random.choices(list(self.track_collections.keys()), k=k))
 
