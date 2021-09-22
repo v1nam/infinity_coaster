@@ -81,7 +81,7 @@ class Game(ShowBase):
 
     def set_tracks(self):
         self.tracks = self.track_generator.generate_straight(
-            start_pos=Point3F(0, -10, 5), initial_direction=Vec3(0, 1, 0)
+            start_pos=Point3F(0, -10, 5), initial_direction=Vec3(0, 1, 0), num_tracks=30
         )
         self.current_track = self.tracks.head
 

@@ -99,23 +99,23 @@ class TrackCollectionGenerator:
         return track_list
 
     def generate_straight(
-        self, start_pos: Point3F, initial_direction: Vec3
+        self, start_pos: Point3F, initial_direction: Vec3, num_tracks: int = 10
     ) -> TrackList:
         return self._generate_track_collection(
             start_pos=start_pos,
             initial_direction=initial_direction,
-            num_tracks=10,
+            num_tracks=num_tracks,
             del_pitch_deg=0,
             del_heading_deg=0,
         )
 
     def generate_ramp(
-        self, start_pos: Point3F, initial_direction: Vec3, type_: Literal["up", "down"]
+        self, start_pos: Point3F, initial_direction: Vec3, type_: Literal["up", "down"], num_tracks: int = 10
     ) -> TrackList:
         return self._generate_track_collection(
             start_pos=start_pos,
             initial_direction=initial_direction,
-            num_tracks=10,
+            num_tracks=num_tracks,
             del_pitch_deg=10 if type_ == "up" else -10,
             del_heading_deg=0,
         )
@@ -134,19 +134,19 @@ class TrackCollectionGenerator:
             del_heading_deg=5 if type_ == "left" else -5,
         )
 
-    def generate_loop(self, start_pos: Point3F, initial_direction: Vec3) -> TrackList:
+    def generate_loop(self, start_pos: Point3F, initial_direction: Vec3, num_tracks: int = 40) -> TrackList:
         loop = self._generate_track_collection(
             start_pos=start_pos,
             initial_direction=initial_direction,
-            num_tracks=10,
+            num_tracks=num_tracks // 2,
             del_pitch_deg=10,
             del_heading_deg=1,
         )
         loop.extend(
             self._generate_track_collection(
-                start_pos=start_pos,
-                initial_direction=initial_direction,
-                num_tracks=10,
+                start_pos=loop.tail.end_pos,
+                initial_direction=loop.tail.direction,
+                num_tracks=num_tracks // 2,
                 del_pitch_deg=10,
                 del_heading_deg=-1,
             )
