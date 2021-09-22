@@ -20,6 +20,7 @@ class Game(ShowBase):
         base.win.requestProperties(props)
 
         self.speed = 12
+        self.track_heading = 0
 
         self.ground = self.loader.loadModel("models/ground.bam")
         self.ground.reparentTo(self.render)
@@ -68,25 +69,33 @@ class Game(ShowBase):
         for i, collection in enumerate(self.track_collections.keys(), start=1):
             self.accept(str(i), self.place_track, [collection])
 
-    def place_track(self, collection):
-        if collection not in self.currently_active_collections:
-            # TODO: commit die
-            return
+    def place_track(self, collection: str):
+        # if collection not in self.currently_active_collections:
+        #     # TODO: commit die
+        #     return
+
         new_tracks = self.track_collections[collection](
             start_pos=self.tracks.tail.end_pos,
-            initial_direction=self.tracks.tail.direction,
+            # initial_heading=self.tracks.tail.direction,
+            initial_heading=self.track_heading
         )
         self.tracks.extend(new_tracks)
+
+        if collection == "turn_left":
+            self.track_heading += 90
+        if collection == "turn_right":
+            self.track_heading -= 90
         self.currently_active_collections = self.generate_active_collections()
         self.update_icon_tray()
 
     def set_tracks(self):
         self.tracks = self.track_generator.generate_straight(
-            start_pos=Point3F(0, -10, 5), initial_direction=Vec3(0, 1, 0), num_tracks=30
+            start_pos=Point3F(0, -10, 5), initial_heading=self.track_heading, num_tracks=30
         )
         self.current_track = self.tracks.head
 
     def move_player_task(self, _task):
+        # print(self.track_heading)
         dt = ClockObject.getGlobalClock().dt
 
         if (

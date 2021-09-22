@@ -48,16 +48,13 @@ class TrackCollectionGenerator:
         start_pos: Point3F,
         del_pitch_deg: float,
         del_heading_deg: float,
-        initial_direction: Vec3,
+        initial_heading: float,
         is_loop: bool = False
     ) -> TrackList:
 
-        dummy = NodePath("dummy")
-        dummy.lookAt(initial_direction, Vec3(0, 0, 1))
-
-        pitch_deg = dummy.get_p()
+        pitch_deg = 0
         pitch = pitch_deg * pi / 180
-        heading_deg = dummy.get_h()
+        heading_deg = initial_heading
         heading = heading_deg * pi / 180
 
         del_pitch = del_pitch_deg * pi / 180
@@ -104,29 +101,29 @@ class TrackCollectionGenerator:
         return track_list
 
     def generate_straight(
-        self, start_pos: Point3F, initial_direction: Vec3, num_tracks: int = 10
+        self, start_pos: Point3F, initial_heading: Vec3, num_tracks: int = 10
     ) -> TrackList:
         return self._generate_track_collection(
             start_pos=start_pos,
-            initial_direction=initial_direction,
+            initial_heading=initial_heading,
             num_tracks=num_tracks,
             del_pitch_deg=0,
             del_heading_deg=0,
         )
 
     def generate_ramp(
-        self, start_pos: Point3F, initial_direction: Vec3, type_: Literal["up", "down"], num_tracks: int = 10
+        self, start_pos: Point3F, initial_heading: Vec3, type_: Literal["up", "down"], num_tracks: int = 10
     ) -> TrackList:
         ramp = self._generate_track_collection(
             start_pos=start_pos,
-            initial_direction=initial_direction,
+            initial_heading=initial_heading,
             num_tracks=num_tracks,
             del_pitch_deg=10 if type_ == "up" else -10,
             del_heading_deg=0,
         )
         ramp.extend(self._generate_track_collection(
             start_pos=ramp.tail.end_pos,
-            initial_direction=Vec3(ramp.tail.direction.x, ramp.tail.direction.y, 0).normalized(),
+            initial_heading=initial_heading,
             num_tracks=2,
             del_pitch_deg=0,
             del_heading_deg=0,
@@ -136,21 +133,21 @@ class TrackCollectionGenerator:
     def generate_turn(
         self,
         start_pos: Point3F,
-        initial_direction: Vec3,
+        initial_heading: Vec3,
         type_: Literal["left", "right"],
     ) -> TrackList:
         return self._generate_track_collection(
             start_pos=start_pos,
-            initial_direction=initial_direction,
-            num_tracks=10,
+            initial_heading=initial_heading,
+            num_tracks=18,
             del_pitch_deg=0,
             del_heading_deg=5 if type_ == "left" else -5,
         )
 
-    def generate_loop(self, start_pos: Point3F, initial_direction: Vec3, num_tracks: int = 40) -> TrackList:
+    def generate_loop(self, start_pos: Point3F, initial_heading: Vec3, num_tracks: int = 40) -> TrackList:
         loop = self._generate_track_collection(
             start_pos=start_pos,
-            initial_direction=initial_direction,
+            initial_heading=initial_heading,
             num_tracks=num_tracks,
             del_pitch_deg=10,
             del_heading_deg=1,
@@ -158,7 +155,7 @@ class TrackCollectionGenerator:
         )
         loop.extend(self._generate_track_collection(
             start_pos=loop.tail.end_pos,
-            initial_direction=Vec3(loop.tail.direction.x, loop.tail.direction.y, 0).normalized(),
+            initial_heading=initial_heading,
             num_tracks=2,
             del_pitch_deg=0,
             del_heading_deg=0,
