@@ -1,3 +1,4 @@
+import random
 import sys
 from functools import partial
 
@@ -42,14 +43,16 @@ class Game(ShowBase):
         }
 
         icon_bar_x = 1.33333 - 0.1 - 0.2
-        self.icons = [
-            OnscreenImage(
+        self.icons = {
+            icon_name: OnscreenImage(
                 image=f"models/{icon_name}_icon.png",
                 pos=(icon_bar_x, 0, ((7 - i) * 2 / 7) - 1),
                 scale=(0.1, 1, 0.1),
             )
             for i, icon_name in enumerate(self.track_collections.keys(), start=1)
-        ]
+        }
+        self.currently_active_collections = self.generate_active_collections()
+        self.update_icon_tray()
 
         self.center = []
         self.set_center()
@@ -65,12 +68,16 @@ class Game(ShowBase):
             self.accept(str(i), self.place_track, [collection])
 
     def place_track(self, collection):
-        print(collection)
+        if collection not in self.currently_active_collections:
+            # TODO: commit die
+            return
         new_tracks = self.track_collections[collection](
             start_pos=self.tracks.tail.end_pos,
             initial_direction=self.tracks.tail.direction,
         )
         self.tracks.extend(new_tracks)
+        self.currently_active_collections = self.generate_active_collections()
+        self.update_icon_tray()
 
     def set_tracks(self):
         self.tracks = self.track_generator.generate_straight(
@@ -104,6 +111,17 @@ class Game(ShowBase):
 
     def set_center(self):
         self.center = [base.win.getXSize() // 2, base.win.getYSize() // 2]
+
+    def generate_active_collections(self) -> set[str]:
+        k = random.choices([1, 2, 3], weights=[0.1, 0.8, 0.1], k=1)[0]
+        return set(random.choices(list(self.track_collections.keys()), k=k))
+
+    def update_icon_tray(self):
+        for icon_name, icon in self.icons.items():
+            if icon_name in self.currently_active_collections:
+                icon.set_color(0, 1, 0, 1)
+            else:
+                icon.set_color(1, 0, 0, 1)
 
 
 if __name__ == "__main__":
