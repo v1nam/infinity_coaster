@@ -12,7 +12,7 @@ from direct.showbase.ShowBase import ShowBase
 from direct.task.Task import Task
 from panda3d.core import ClockObject, NodePath, Point3F, Vec3, WindowProperties, TextNode, AmbientLight, DirectionalLight
 
-from track_generation import Track, TrackCollectionGenerator
+from track_generation import Track, TrackCollectionGenerator, TrackList
 from menu import Menu
 
 
@@ -75,6 +75,7 @@ class Game(ShowBase):
         self.speed = 12
         self.track_heading = 0
 
+        self.tracks = TrackList(maxlen=100)
         self.set_tracks()
 
         self.player_node = NodePath("player_node")
@@ -149,11 +150,11 @@ class Game(ShowBase):
         self.update_icon_tray()
 
     def set_tracks(self):
-        self.tracks = self.track_generator.generate_straight(
+        self.tracks.extend(self.track_generator.generate_straight(
             start_pos=Point3F(0, -10, 5),
             initial_heading=self.track_heading,
             num_tracks=30,
-        )
+        ))
         self.current_track = self.tracks.head
 
     def move_player_task(self, _task):

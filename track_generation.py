@@ -8,21 +8,25 @@ from panda3d.core import NodePath, Point3F, Quat, Vec3
 class Track:
     LENGTH = 2
 
-    def __init__(self, direction: Vec3, normal: Vec3, start_pos: Point3F):
+    def __init__(self, direction: Vec3, normal: Vec3, start_pos: Point3F, node_path: NodePath):
         self.direction = direction
         self.normal = normal
         self.next_track = None
         self.prev_track = None
         self.start_pos = start_pos
         self.end_pos = self.start_pos + self.direction * self.LENGTH
+        self.node_path = node_path
 
 
 class TrackList:
-    def __init__(self, head: Optional[Track] = None, tail: Optional[Track] = None):
+    def __init__(self, head: Optional[Track] = None, tail: Optional[Track] = None, maxlen: Optional[int] = None):
+        self.maxlen = maxlen
+        self._len = 0
         self.head = head
         self.tail = tail
 
     def append(self, track: Track) -> None:
+        self._len += 1
         track.prev_track = self.tail
         if self.tail:
             self.tail.next_track = track
@@ -30,11 +34,38 @@ class TrackList:
         self.tail = track
         if self.head is None:
             self.head = track
+        if self.maxlen is not None and len(self) > self.maxlen:
+            self.popleft()
 
     def extend(self, other: "TrackList") -> None:
-        self.tail.next_track = other.head
+        self._len += len(other)
+        if self.tail:
+            self.tail.next_track = other.head
+        if self.head is None:
+            self.head = other.head
         other.head.prev_track = self.tail
         self.tail = other.tail
+        while self.maxlen is not None and len(self) > self.maxlen:
+            self.popleft()
+
+    def popleft(self) -> None:
+        if self.head is None:
+            raise IndexError("Empty track list")
+        self._len -= 1
+        head = self.head
+        self.head = self.head.next_track
+        if self.head:
+            self.head.prev_track = None
+        head.node_path.remove_node()
+
+    def __iter__(self):
+        current = self.head
+        while current is not None:
+            yield current
+            current = current.next_track
+
+    def __len__(self):
+        return self._len
 
 
 class TrackCollectionGenerator:
@@ -92,7 +123,7 @@ class TrackCollectionGenerator:
             ).normalized()
             track_list.append(
                 Track(
-                    track_direction, track_normal, track_dummy_node.getPos(self.render)
+                    track_direction, track_normal, track_dummy_node.getPos(self.render), track_dummy_node
                 )
             )
 
