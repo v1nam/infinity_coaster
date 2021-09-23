@@ -75,9 +75,6 @@ class Game(ShowBase):
         self.speed = 12
         self.track_heading = 0
 
-        self.ground = self.loader.loadModel("models/ground.bam")
-        self.ground.reparentTo(self.render)
-
         self.set_tracks()
 
         self.player_node = NodePath("player_node")
