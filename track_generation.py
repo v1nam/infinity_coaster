@@ -109,7 +109,7 @@ class TrackCollectionGenerator:
         return track_list
 
     def generate_straight(
-        self, start_pos: Point3F, initial_heading: Vec3, num_tracks: int = 10
+        self, start_pos: Point3F, initial_heading: float, num_tracks: int = 10
     ) -> TrackList:
         return self._generate_track_collection(
             start_pos=start_pos,
@@ -122,7 +122,7 @@ class TrackCollectionGenerator:
     def generate_ramp(
         self,
         start_pos: Point3F,
-        initial_heading: Vec3,
+        initial_heading: float,
         type_: Literal["up", "down"],
         num_tracks: int = 10,
     ) -> TrackList:
@@ -147,7 +147,7 @@ class TrackCollectionGenerator:
     def generate_turn(
         self,
         start_pos: Point3F,
-        initial_heading: Vec3,
+        initial_heading: float,
         type_: Literal["left", "right"],
     ) -> TrackList:
         return self._generate_track_collection(
@@ -159,7 +159,7 @@ class TrackCollectionGenerator:
         )
 
     def generate_loop(
-        self, start_pos: Point3F, initial_heading: Vec3, num_tracks: int = 40
+        self, start_pos: Point3F, initial_heading: float, num_tracks: int = 40
     ) -> TrackList:
         loop = self._generate_track_collection(
             start_pos=start_pos,
