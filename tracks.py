@@ -6,10 +6,11 @@ from typing import Set
 from direct.gui.DirectButton import DirectButton
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenText import OnscreenText
+from direct.filter.CommonFilters import CommonFilters
 
 from direct.showbase.ShowBase import ShowBase
 from direct.task.Task import Task
-from panda3d.core import ClockObject, NodePath, Point3F, Vec3, WindowProperties, TextNode
+from panda3d.core import ClockObject, NodePath, Point3F, Vec3, WindowProperties, TextNode, AmbientLight, DirectionalLight
 
 from track_generation import Track, TrackCollectionGenerator
 from menu import Menu
@@ -18,6 +19,14 @@ from menu import Menu
 class Game(ShowBase):
     def __init__(self):
         super().__init__()
+        
+        base.setBackgroundColor(0.05,0.05,0.05)
+        self.filters = CommonFilters(base.win, base.cam)
+        self.filters.setBloom(blend=(0, 0, 0, 1), desat=-0.5, intensity=3.0, size="small")
+        alight = AmbientLight('alight')
+        alnp = render.attachNewNode(alight)
+        alight.setColor((0, 0.35, 0.5, 1))
+        self.render.setLight(alnp)
 
         self.track_generator = TrackCollectionGenerator(self.render, self.loader)
         self.track_collections = {
