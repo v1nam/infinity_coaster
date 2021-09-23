@@ -42,6 +42,14 @@ class Game(ShowBase):
             command=lambda: [b.destroy(), _.destroy(), self.start_menu.show()],
         )
 
+    def show_pause_menu(self):
+        b = DirectButton(
+            text="Resume",
+            pos=(0, 0, 0),
+            scale=(0.1, 1, 0.1),
+            command=lambda: [b.destroy(), self.unpause()],
+        )
+
     def start_game(self):
         self.disable_mouse()
         props = WindowProperties()
@@ -80,9 +88,29 @@ class Game(ShowBase):
         self.rot_h = 0
         self.mouse_sensitivity = 30
 
-        self.taskMgr.add(self.move_player_task, "MovePlayerTask")
+        # self.taskMgr.add(self.move_player_task, "MovePlayerTask")
         self.accept("aspectRatioChanged", self.set_center)
         self.accept("escape", sys.exit)
+        self.unpause()
+
+    def pause(self):
+        self.taskMgr.remove("MovePlayerTask")
+        self.show_pause_menu()
+        props = WindowProperties()
+        props.setCursorHidden(False)
+        base.win.requestProperties(props)
+        self.ignore("space")
+        # self.accept("space", self.unpause)
+        for i, _ in enumerate(self.track_collections.keys(), start=1):
+            self.ignore(str(i))
+
+    def unpause(self):
+        self.taskMgr.add(self.move_player_task, "MovePlayerTask")
+        props = WindowProperties()
+        props.setCursorHidden(True)
+        base.win.requestProperties(props)
+        self.ignore("space")
+        self.accept("space", self.pause)
 
         for i, collection in enumerate(self.track_collections.keys(), start=1):
             self.accept(str(i), self.place_track, [collection])
@@ -124,7 +152,12 @@ class Game(ShowBase):
             self.current_track = self.current_track.next_track
 
         self.player_node.set_pos(
-            self.player_node.get_pos() + self.current_track.direction * self.speed * dt
+            self.current_track.start_pos
+            + (
+                self.player_node.get_pos()
+                + self.current_track.direction * self.speed * dt
+                - self.current_track.start_pos
+            ).project(self.current_track.direction)
         )
         self.camera.set_pos(self.current_track.normal * 2)
 
