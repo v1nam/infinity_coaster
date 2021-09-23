@@ -10,7 +10,16 @@ from direct.filter.CommonFilters import CommonFilters
 
 from direct.showbase.ShowBase import ShowBase
 from direct.task.Task import Task
-from panda3d.core import ClockObject, NodePath, Point3F, Vec3, WindowProperties, TextNode, AmbientLight, DirectionalLight
+from panda3d.core import (
+    ClockObject,
+    NodePath,
+    Point3F,
+    Vec3,
+    WindowProperties,
+    TextNode,
+    AmbientLight,
+    DirectionalLight,
+)
 
 from track_generation import Track, TrackCollectionGenerator, TrackList
 from menu import Menu
@@ -19,12 +28,14 @@ from menu import Menu
 class Game(ShowBase):
     def __init__(self):
         super().__init__()
-        
-        base.setBackgroundColor(0.05,0.05,0.05)
+
+        base.setBackgroundColor(0.05, 0.05, 0.05)
         self.filters = CommonFilters(base.win, base.cam)
-        self.filters.setBloom(blend=(0, 0, 0, 1), desat=-0.5, intensity=3.0, size="small")
-        alight = AmbientLight('alight')
-        alnp = render.attachNewNode(alight)
+        self.filters.setBloom(
+            blend=(0, 0, 0, 1), desat=-0.5, intensity=3.0, size="small"
+        )
+        alight = AmbientLight("alight")
+        alnp = self.render.attachNewNode(alight)
         alight.setColor((0, 0.35, 0.5, 1))
         self.render.setLight(alnp)
 
@@ -38,7 +49,11 @@ class Game(ShowBase):
             "loop": self.track_generator.generate_loop,
         }
         self.start_menu = Menu(
-            {"Start New Game": self.start_game, "ooga booga": self.show_credits}
+            {
+                "Start New Game": self.start_game,
+                "Credits": self.show_credits,
+                "Quit": sys.exit,
+            }
         )
         self.start_menu.show()
         # self.start_game()
@@ -50,14 +65,6 @@ class Game(ShowBase):
             pos=(0, 0, -0.75),
             scale=(0.1, 1, 0.1),
             command=lambda: [b.destroy(), _.destroy(), self.start_menu.show()],
-        )
-
-    def show_pause_menu(self):
-        b = DirectButton(
-            text="Resume",
-            pos=(0, 0, 0),
-            scale=(0.1, 1, 0.1),
-            command=lambda: [b.destroy(), self.unpause()],
         )
 
     def start_game(self):
@@ -107,9 +114,15 @@ class Game(ShowBase):
         self.accept("escape", sys.exit)
         self.unpause()
 
-    def pause(self):
+    def pause(self, show_resume: bool = True):
         self.taskMgr.remove("MovePlayerTask")
-        self.show_pause_menu()
+        if show_resume:
+            b = DirectButton(
+                text="Resume",
+                pos=(0, 0, 0),
+                scale=(0.1, 1, 0.1),
+                command=lambda: [b.destroy(), self.unpause()],
+            )
         props = WindowProperties()
         props.setCursorHidden(False)
         base.win.requestProperties(props)
@@ -130,14 +143,41 @@ class Game(ShowBase):
         for i, collection in enumerate(self.track_collections.keys(), start=1):
             self.accept(str(i), self.place_track, [collection])
 
+    def die(self, cause: str):
+        self.pause(show_resume=False)
+        for track in self.tracks:
+            track.node_path.removeNode()
+        for icon in self.icons.values():
+            icon.destroy()
+        self.score_node_path.removeNode()
+        t1 = OnscreenText(text=cause, pos=(0, 0.8, 0), bg=(204/255, 204/255, 204/255, 1))
+        t2 = OnscreenText(text=f"Final Score: {self.score}", pos=(0, 0.7, 0), bg=(204/255, 204/255, 204/255, 1))
+        menu = Menu(
+            {
+                "Start Screen": lambda: [
+                    self.start_menu.show(),
+                    t1.destroy(),
+                    t2.destroy(),
+                    menu.hide(),
+                ],
+                "Replay": lambda: [
+                    self.start_game(),
+                    t1.destroy(),
+                    t2.destroy(),
+                    menu.hide(),
+                ],
+                "Quit": sys.exit,
+            }
+        )
+        menu.show()
+
     def place_track(self, collection: str):
-        # if collection not in self.currently_active_collections:
-        #     # TODO: commit die
-        #     return
+        if collection not in self.currently_active_collections:
+            self.die("You tried to press an inactive track and died!")
+            return
 
         new_tracks = self.track_collections[collection](
             start_pos=self.tracks.tail.end_pos,
-            # initial_heading=self.tracks.tail.direction,
             initial_heading=self.track_heading,
         )
         self.tracks.extend(new_tracks)
@@ -150,22 +190,28 @@ class Game(ShowBase):
         self.update_icon_tray()
 
     def set_tracks(self):
-        self.tracks.extend(self.track_generator.generate_straight(
-            start_pos=Point3F(0, -10, 5),
-            initial_heading=self.track_heading,
-            num_tracks=30,
-        ))
+        self.tracks.extend(
+            self.track_generator.generate_straight(
+                start_pos=Point3F(0, -10, 5),
+                initial_heading=self.track_heading,
+                num_tracks=30,
+            )
+        )
         self.current_track = self.tracks.head
 
     def move_player_task(self, _task):
         # print(self.track_heading)
         dt = ClockObject.getGlobalClock().dt
 
-        if (
+        while (
             self.player_node.get_pos() - self.current_track.start_pos
-        ).length() > Track.LENGTH and self.current_track.next_track is not None:
-            self.current_track = self.current_track.next_track
-            self.score += 1
+        ).length() > Track.LENGTH:
+            if self.current_track.next_track is not None:
+                self.current_track = self.current_track.next_track
+                self.score += 1
+            else:
+                self.die("You didn't place a track in time and died!")
+                return
 
         self.player_node.set_pos(
             self.current_track.start_pos
