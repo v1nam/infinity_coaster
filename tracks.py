@@ -6,9 +6,10 @@ from typing import Set
 from direct.gui.DirectButton import DirectButton
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenText import OnscreenText
+
 from direct.showbase.ShowBase import ShowBase
 from direct.task.Task import Task
-from panda3d.core import ClockObject, NodePath, Point3F, Vec3, WindowProperties
+from panda3d.core import ClockObject, NodePath, Point3F, Vec3, WindowProperties, TextNode
 
 from track_generation import Track, TrackCollectionGenerator
 from menu import Menu
@@ -55,6 +56,12 @@ class Game(ShowBase):
         props = WindowProperties()
         props.setCursorHidden(True)
         base.win.requestProperties(props)
+
+        self.score = 0
+        self.score_node = TextNode("score_node")
+        self.score_node_path = self.aspect2d.attachNewNode(self.score_node)
+        self.score_node_path.set_scale(0.1)
+        self.score_node_path.set_pos((-1, 0, 0.75))
 
         self.speed = 12
         self.track_heading = 0
@@ -106,6 +113,7 @@ class Game(ShowBase):
 
     def unpause(self):
         self.taskMgr.add(self.move_player_task, "MovePlayerTask")
+        self.taskMgr.add(self.update_score_task, "UpdateScoreTask")
         props = WindowProperties()
         props.setCursorHidden(True)
         base.win.requestProperties(props)
@@ -150,6 +158,7 @@ class Game(ShowBase):
             self.player_node.get_pos() - self.current_track.start_pos
         ).length() > Track.LENGTH and self.current_track.next_track is not None:
             self.current_track = self.current_track.next_track
+            self.score += 1
 
         self.player_node.set_pos(
             self.current_track.start_pos
@@ -170,6 +179,10 @@ class Game(ShowBase):
             self.rot_v = min(90, self.rot_v)
             self.camera.setHpr(self.rot_h, self.rot_v, 0)
         base.win.movePointer(0, self.center[0], self.center[1])
+        return Task.cont
+
+    def update_score_task(self, _task):
+        self.score_node.set_text(f"SCORE: {self.score}")
         return Task.cont
 
     def set_center(self):
