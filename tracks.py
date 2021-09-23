@@ -13,6 +13,7 @@ from panda3d.core import ClockObject, NodePath, Point3F, Vec3, WindowProperties
 from track_generation import Track, TrackCollectionGenerator
 from menu import Menu
 
+
 class Game(ShowBase):
     def __init__(self):
         super().__init__()
@@ -26,13 +27,20 @@ class Game(ShowBase):
             "turn_right": partial(self.track_generator.generate_turn, type_="right"),
             "loop": self.track_generator.generate_loop,
         }
-        self.start_menu = Menu({"Start New Game": self.start_game, "ooga booga": self.show_credits})
+        self.start_menu = Menu(
+            {"Start New Game": self.start_game, "ooga booga": self.show_credits}
+        )
         self.start_menu.show()
         # self.start_game()
 
     def show_credits(self):
         _ = OnscreenText("maed by vinam & hsp")
-        b = DirectButton(text="back", pos=(0, 0, -0.75), scale=(0.1, 1, 0.1), command=lambda: [b.destroy(), _.destroy(), self.start_menu.show()])
+        b = DirectButton(
+            text="back",
+            pos=(0, 0, -0.75),
+            scale=(0.1, 1, 0.1),
+            command=lambda: [b.destroy(), _.destroy(), self.start_menu.show()],
+        )
 
     def start_game(self):
         self.disable_mouse()
@@ -87,7 +95,7 @@ class Game(ShowBase):
         new_tracks = self.track_collections[collection](
             start_pos=self.tracks.tail.end_pos,
             # initial_heading=self.tracks.tail.direction,
-            initial_heading=self.track_heading
+            initial_heading=self.track_heading,
         )
         self.tracks.extend(new_tracks)
 
@@ -100,7 +108,9 @@ class Game(ShowBase):
 
     def set_tracks(self):
         self.tracks = self.track_generator.generate_straight(
-            start_pos=Point3F(0, -10, 5), initial_heading=self.track_heading, num_tracks=30
+            start_pos=Point3F(0, -10, 5),
+            initial_heading=self.track_heading,
+            num_tracks=30,
         )
         self.current_track = self.tracks.head
 

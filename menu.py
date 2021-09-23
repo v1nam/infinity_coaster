@@ -11,9 +11,11 @@ class Menu:
                 command=self.dispatch,
                 extraArgs=[func],
                 pos=(0, 0, 2 * i / (1 + len(menu_items)) - 1),
-                scale=(0.1, 1, 0.1)
+                scale=(0.1, 1, 0.1),
             )
-            for i, (text, func) in enumerate(reversed(list(menu_items.items())), start=1)
+            for i, (text, func) in enumerate(
+                reversed(list(menu_items.items())), start=1
+            )
         ]
         self.hide()
 

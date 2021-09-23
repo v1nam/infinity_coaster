@@ -49,7 +49,7 @@ class TrackCollectionGenerator:
         del_pitch_deg: float,
         del_heading_deg: float,
         initial_heading: float,
-        is_loop: bool = False
+        is_loop: bool = False,
     ) -> TrackList:
 
         pitch_deg = 0
@@ -63,7 +63,15 @@ class TrackCollectionGenerator:
         track_list = TrackList()
 
         normal_rotation_quat = Quat()
-        normal_rotation_quat.setFromAxisAngleRad(del_pitch, {0: Vec3(1, 0, 0), 90: Vec3(0, 1, 0), 180: Vec3(-1, 0, 0), 270: Vec3(0, -1, 0)}[heading_deg])
+        normal_rotation_quat.setFromAxisAngleRad(
+            del_pitch,
+            {
+                0: Vec3(1, 0, 0),
+                90: Vec3(0, 1, 0),
+                180: Vec3(-1, 0, 0),
+                270: Vec3(0, -1, 0),
+            }[heading_deg],
+        )
         track_normal = Vec3(0, 0, 1)
 
         for i in range(num_tracks):
@@ -112,7 +120,11 @@ class TrackCollectionGenerator:
         )
 
     def generate_ramp(
-        self, start_pos: Point3F, initial_heading: Vec3, type_: Literal["up", "down"], num_tracks: int = 10
+        self,
+        start_pos: Point3F,
+        initial_heading: Vec3,
+        type_: Literal["up", "down"],
+        num_tracks: int = 10,
     ) -> TrackList:
         ramp = self._generate_track_collection(
             start_pos=start_pos,
@@ -121,13 +133,15 @@ class TrackCollectionGenerator:
             del_pitch_deg=10 if type_ == "up" else -10,
             del_heading_deg=0,
         )
-        ramp.extend(self._generate_track_collection(
-            start_pos=ramp.tail.end_pos,
-            initial_heading=initial_heading,
-            num_tracks=2,
-            del_pitch_deg=0,
-            del_heading_deg=0,
-        ))
+        ramp.extend(
+            self._generate_track_collection(
+                start_pos=ramp.tail.end_pos,
+                initial_heading=initial_heading,
+                num_tracks=2,
+                del_pitch_deg=0,
+                del_heading_deg=0,
+            )
+        )
         return ramp
 
     def generate_turn(
@@ -144,20 +158,24 @@ class TrackCollectionGenerator:
             del_heading_deg=5 if type_ == "left" else -5,
         )
 
-    def generate_loop(self, start_pos: Point3F, initial_heading: Vec3, num_tracks: int = 40) -> TrackList:
+    def generate_loop(
+        self, start_pos: Point3F, initial_heading: Vec3, num_tracks: int = 40
+    ) -> TrackList:
         loop = self._generate_track_collection(
             start_pos=start_pos,
             initial_heading=initial_heading,
             num_tracks=num_tracks,
             del_pitch_deg=10,
             del_heading_deg=1,
-            is_loop=True
+            is_loop=True,
         )
-        loop.extend(self._generate_track_collection(
-            start_pos=loop.tail.end_pos,
-            initial_heading=initial_heading,
-            num_tracks=2,
-            del_pitch_deg=0,
-            del_heading_deg=0,
-        ))
+        loop.extend(
+            self._generate_track_collection(
+                start_pos=loop.tail.end_pos,
+                initial_heading=initial_heading,
+                num_tracks=2,
+                del_pitch_deg=0,
+                del_heading_deg=0,
+            )
+        )
         return loop
