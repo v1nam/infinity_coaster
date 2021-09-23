@@ -54,7 +54,7 @@ class TrackCollectionGenerator:
 
         pitch_deg = 0
         pitch = pitch_deg * pi / 180
-        heading_deg = initial_heading
+        heading_deg = initial_heading % 360
         heading = heading_deg * pi / 180
 
         del_pitch = del_pitch_deg * pi / 180
@@ -63,7 +63,7 @@ class TrackCollectionGenerator:
         track_list = TrackList()
 
         normal_rotation_quat = Quat()
-        normal_rotation_quat.setFromAxisAngleRad(-del_pitch, Vec3(-1, 0, 0))
+        normal_rotation_quat.setFromAxisAngleRad(del_pitch, {0: Vec3(1, 0, 0), 90: Vec3(0, 1, 0), 180: Vec3(-1, 0, 0), 270: Vec3(0, -1, 0)}[heading_deg])
         track_normal = Vec3(0, 0, 1)
 
         for i in range(num_tracks):
