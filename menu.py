@@ -1,10 +1,10 @@
-from typing import Callable
+from typing import Callable, Dict
 
 from direct.gui.DirectButton import DirectButton
 
 
 class Menu:
-    def __init__(self, menu_items: dict[str, Callable]):
+    def __init__(self, menu_items: Dict[str, Callable]):
         self.buttons = [
             DirectButton(
                 text=text,
