@@ -80,6 +80,7 @@ class TrackCollectionGenerator:
 
             track = self.loader.loadModel("models/trackcoloured.bam")
             track.reparentTo(track_dummy_node)
+            track.setColor((0,0,0,1))
             track.set_pos(0, Track.LENGTH / 2, 0)
 
             track_dummy_node.set_pos(start_pos)
@@ -130,7 +131,7 @@ class TrackCollectionGenerator:
             start_pos=start_pos,
             initial_heading=initial_heading,
             num_tracks=num_tracks,
-            del_pitch_deg=10 if type_ == "up" else -10,
+            del_pitch_deg=5 if type_ == "up" else -5,
             del_heading_deg=0,
         )
         ramp.extend(
