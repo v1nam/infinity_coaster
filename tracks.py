@@ -44,7 +44,7 @@ class Game(ShowBase):
 
         self.filters = CommonFilters(base.win, base.cam)
         self.filters.setBloom(
-            blend=(0, 0, 0, 1), desat=-0.5, intensity=3.0, size="small"
+            blend=(0, 0, 0, 1), desat=-0.5, intensity=2.0, size="small"
         )
 
         alight = AmbientLight("alight")
@@ -78,17 +78,17 @@ class Game(ShowBase):
         text1 = OnscreenText("Made by vinam & hsp", fg=(1, 1, 1, 1), pos=(0, 0.2))
         text2 = OnscreenText("Music by Eric Matyas \n www.soundimage.org", fg=(1, 1, 1, 1), pos=(0, -0.2))
         b = DirectButton(
-            text="back",
+            text="Back",
             pos=(0, 0, -0.75),
             scale=(0.1, 1, 0.1),
             command=lambda: [b.destroy(), text1.destroy(), text2.destroy(), self.start_menu.show()],
             # scale=(0.12, 1, 0.12),
             text_scale=(0.9, 0.9),
-            text_bg=(0.2, 0.2, 0.2, 1),
-            text_fg=(1, 1, 1, 1),
+            text_bg=(0, 0.085, 0.125, 1),
+            text_fg=(0, 0.7, 1, 1),
             relief=DDG.GROOVE,
-            frameColor=(0.2, 0.2, 0.2, 1),
-            text_shadow=(0.9, 0.9, 0.9, 1),
+            frameColor=(0, 0.35, 0.5, 1),
+            text_shadow=(0, 0.0425, 0.0625, 1),
         )
 
     def start_game(self):
