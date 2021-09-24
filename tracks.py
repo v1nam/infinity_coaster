@@ -109,7 +109,8 @@ class Game(ShowBase):
         self.score_node_path.set_scale(0.1)
         self.score_node_path.set_pos((-1, 0, 0.75))
 
-        self.speed = 12
+        self.speed = 7
+        self.acceleration = 1
         self.track_generator.total_tracks_placed = 0
         self.current_track_index = 0
         self.track_heading = 0
@@ -153,6 +154,7 @@ class Game(ShowBase):
 
     def pause(self, show_resume: bool = True):
         self.taskMgr.remove("MovePlayerTask")
+        self.taskMgr.remove("UpdateScoreTask")
         self.taskMgr.remove("PositionSkyBoxTask")
         self.ambient_sound.stop()
         if show_resume:
@@ -295,6 +297,8 @@ class Game(ShowBase):
             ).project(self.current_track.direction)
         )
         self.camera.set_pos(self.current_track.normal * 2)
+        if self.speed < 20:
+            self.speed += self.acceleration * dt
 
         if base.mouseWatcherNode.hasMouse():
             mx = base.mouseWatcherNode.getMouseX()
@@ -330,6 +334,9 @@ class Game(ShowBase):
             else:
                 icon.hide()
                 # icon.set_color(0, 0, 0, 1)
+
+    def increase_speed_task(self):
+        self.speed += 1
 
 
 if __name__ == "__main__":
