@@ -111,7 +111,7 @@ class Game(ShowBase):
             icon_name: OnscreenImage(
                 image=f"models/{icon_name}_icon.png",
                 pos=(icon_bar_x, 0, ((7 - i) * 2 / 7) - 1),
-                scale=(0.1, 1, 0.1),
+                scale=(0.15, 15, 0.15),
             )
             for i, icon_name in enumerate(self.track_collections.keys(), start=1)
         }
@@ -282,9 +282,11 @@ class Game(ShowBase):
     def update_icon_tray(self):
         for icon_name, icon in self.icons.items():
             if icon_name in self.currently_active_collections:
-                icon.set_color(0, 1, 0, 1)
+                # icon.set_color(0, 1, 0, 1)
+                icon.show()
             else:
-                icon.set_color(1, 0, 0, 1)
+                icon.hide()
+                # icon.set_color(0, 0, 0, 1)
 
 
 if __name__ == "__main__":
