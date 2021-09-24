@@ -120,7 +120,11 @@ class Game(ShowBase):
         self.rot_h = 0
         self.mouse_sensitivity = 30
 
-        # self.taskMgr.add(self.move_player_task, "MovePlayerTask")
+        self.ambient_sound = base.loader.loadSfx("models/ambient.wav")
+        self.ambient_sound.setLoop(True)
+        self.ambient_sound.play()
+        self.place_track_sound = base.loader.loadSfx("models/place.wav")
+
         self.accept("aspectRatioChanged", self.set_center)
         self.accept("escape", sys.exit)
         self.unpause()
@@ -128,6 +132,7 @@ class Game(ShowBase):
     def pause(self, show_resume: bool = True):
         self.taskMgr.remove("MovePlayerTask")
         self.taskMgr.remove("PositionSkyBoxTask")
+        self.ambient_sound.stop()
         if show_resume:
             b = DirectButton(
                 text="Resume",
@@ -147,6 +152,7 @@ class Game(ShowBase):
         self.taskMgr.add(self.move_player_task, "MovePlayerTask")
         self.taskMgr.add(self.update_score_task, "UpdateScoreTask")
         self.taskMgr.add(self.position_skybox_task, "PositionSkyBoxTask")
+        self.ambient_sound.play()
         props = WindowProperties()
         props.setCursorHidden(True)
         base.win.requestProperties(props)
@@ -194,7 +200,7 @@ class Game(ShowBase):
         if collection not in self.currently_active_collections:
             self.die("You tried to press an inactive track and died!")
             return
-
+        self.place_track_sound.play()
         new_tracks = self.track_collections[collection](
             start_pos=self.tracks.tail.end_pos,
             initial_heading=self.track_heading,
