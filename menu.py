@@ -1,21 +1,28 @@
-from typing import Callable, Dict
+from typing import Callable, Dict, Tuple
 
 from direct.gui.DirectButton import DirectButton
+from direct.gui import DirectGuiGlobals as DDG
 
 
 class Menu:
-    def __init__(self, menu_items: Dict[str, Callable]):
+    def __init__(self, menu_items: Dict[str, Tuple[Callable, Tuple[float, float]]]):
+
         self.buttons = [
             DirectButton(
                 text=text,
                 command=self.dispatch,
                 extraArgs=[func],
-                pos=(0, 0, 2 * i / (1 + len(menu_items)) - 1),
-                scale=(0.1, 1, 0.1),
+                pos=(x, 0, z),
+                scale=(0.12, 1, 0.12),
+                text_scale=(0.9, 0.9),
+                text_bg=(0.2, 0.2, 0.2, 1),
+                text_fg=(0.4, 0.4, 1, 1),
+                relief=DDG.GROOVE,
+                frameColor=(0.2, 0.2, 0.2, 1),
+                text_shadow=(0.9, 0.9, 0.9, 1),
             )
-            for i, (text, func) in enumerate(
-                reversed(list(menu_items.items())), start=1
-            )
+            for text, (func, (x, z)) in reversed(list(menu_items.items()))
+
         ]
         self.hide()
 

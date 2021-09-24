@@ -4,6 +4,7 @@ from functools import partial
 from typing import Set
 
 from direct.gui.DirectButton import DirectButton
+from direct.gui import DirectGuiGlobals as DDG
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenText import OnscreenText
 from direct.filter.CommonFilters import CommonFilters
@@ -62,9 +63,9 @@ class Game(ShowBase):
         }
         self.start_menu = Menu(
             {
-                "Start New Game": self.start_game,
-                "Credits": self.show_credits,
-                "Quit": sys.exit,
+                "NEW GAME": (self.start_game, (0, -0.1)),
+                "CREDITS": (self.show_credits, (0, -0.45)),
+                "QUIT": (sys.exit, (0, -0.62)),
             }
         )
         self.start_menu.show()
@@ -74,13 +75,20 @@ class Game(ShowBase):
         self.music.play()
 
     def show_credits(self):
-        text1 = OnscreenText("made by vinam & hsp", fg=(1, 1, 1, 1), pos=(0, 0.2))
+        text1 = OnscreenText("Made by vinam & hsp", fg=(1, 1, 1, 1), pos=(0, 0.2))
         text2 = OnscreenText("Music by Eric Matyas \n www.soundimage.org", fg=(1, 1, 1, 1), pos=(0, -0.2))
         b = DirectButton(
             text="back",
             pos=(0, 0, -0.75),
             scale=(0.1, 1, 0.1),
             command=lambda: [b.destroy(), text1.destroy(), text2.destroy(), self.start_menu.show()],
+            # scale=(0.12, 1, 0.12),
+            text_scale=(0.9, 0.9),
+            text_bg=(0.2, 0.2, 0.2, 1),
+            text_fg=(1, 1, 1, 1),
+            relief=DDG.GROOVE,
+            frameColor=(0.2, 0.2, 0.2, 1),
+            text_shadow=(0.9, 0.9, 0.9, 1),
         )
 
     def start_game(self):
@@ -145,6 +153,12 @@ class Game(ShowBase):
                 pos=(0, 0, 0),
                 scale=(0.1, 1, 0.1),
                 command=lambda: [b.destroy(), self.unpause()],
+                text_scale=(0.9, 0.9),
+                text_bg=(0.2, 0.2, 0.2, 1),
+                text_fg=(0.9, 1, 0.9, 1),
+                relief=DDG.GROOVE,
+                frameColor=(0.2, 0.2, 0.2, 1),
+                text_shadow=(0.9, 0.9, 0.9, 1),
             )
         props = WindowProperties()
         props.setCursorHidden(False)
@@ -185,19 +199,19 @@ class Game(ShowBase):
         )
         menu = Menu(
             {
-                "Start Screen": lambda: [
-                    self.start_menu.show(),
-                    t1.destroy(),
-                    t2.destroy(),
-                    menu.hide(),
-                ],
-                "Replay": lambda: [
+                "PLAY AGAIN": (lambda: [
                     self.start_game(),
                     t1.destroy(),
                     t2.destroy(),
                     menu.hide(),
-                ],
-                "Quit": sys.exit,
+                ], (0, -0.2)),
+                "START SCREEN": (lambda: [
+                    self.start_menu.show(),
+                    t1.destroy(),
+                    t2.destroy(),
+                    menu.hide(),
+                ], (0, -0.4)),
+                "QUIT": (sys.exit, (0, -0.6)),
             }
         )
         menu.show()
