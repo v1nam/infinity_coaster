@@ -45,9 +45,10 @@ class Game(ShowBase):
         self.filters.setBloom(
             blend=(0, 0, 0, 1), desat=-0.5, intensity=3.0, size="small"
         )
+
         alight = AmbientLight("alight")
         alnp = self.render.attachNewNode(alight)
-        alight.setColor((0, 0.35, 0.5, 1))
+        alight.setColor((0, 0.7, 1.0, 1))
         self.render.setLight(alnp)
 
         self.track_generator = TrackCollectionGenerator(self.render, self.loader)
