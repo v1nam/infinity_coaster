@@ -76,12 +76,19 @@ class Game(ShowBase):
 
     def show_credits(self):
         text1 = OnscreenText("Made by vinam & hsp", fg=(1, 1, 1, 1), pos=(0, 0.2))
-        text2 = OnscreenText("Music by Eric Matyas \n www.soundimage.org", fg=(1, 1, 1, 1), pos=(0, -0.2))
+        text2 = OnscreenText(
+            "Music by Eric Matyas \n www.soundimage.org", fg=(1, 1, 1, 1), pos=(0, -0.2)
+        )
         b = DirectButton(
             text="Back",
             pos=(0, 0, -0.75),
             scale=(0.1, 1, 0.1),
-            command=lambda: [b.destroy(), text1.destroy(), text2.destroy(), self.start_menu.show()],
+            command=lambda: [
+                b.destroy(),
+                text1.destroy(),
+                text2.destroy(),
+                self.start_menu.show(),
+            ],
             # scale=(0.12, 1, 0.12),
             text_scale=(0.9, 0.9),
             text_bg=(0, 0.085, 0.125, 1),
@@ -154,11 +161,11 @@ class Game(ShowBase):
                 scale=(0.1, 1, 0.1),
                 command=lambda: [b.destroy(), self.unpause()],
                 text_scale=(0.9, 0.9),
-                text_bg=(0.2, 0.2, 0.2, 1),
-                text_fg=(0.9, 1, 0.9, 1),
+                text_bg=(0, 0.085, 0.125, 1),
+                text_fg=(0, 0.7, 1, 1),
                 relief=DDG.GROOVE,
-                frameColor=(0.2, 0.2, 0.2, 1),
-                text_shadow=(0.9, 0.9, 0.9, 1),
+                frameColor=(0, 0.35, 0.5, 1),
+                text_shadow=(0, 0.0425, 0.0625, 1),
             )
         props = WindowProperties()
         props.setCursorHidden(False)
@@ -190,27 +197,41 @@ class Game(ShowBase):
             icon.destroy()
         self.score_node_path.removeNode()
         t1 = OnscreenText(
-            text=cause, pos=(0, 0.8, 0), bg=(204 / 255, 204 / 255, 204 / 255, 1)
+            text=cause,
+            pos=(0, 0.5, 0),
+            bg=(0, 0, 0, 0),
+            fg=(0, 0.7, 1, 1),
+            shadow=(0, 0.0425, 0.0625, 1),
+            scale=0.1,
         )
         t2 = OnscreenText(
             text=f"Final Score: {self.score}",
-            pos=(0, 0.7, 0),
-            bg=(204 / 255, 204 / 255, 204 / 255, 1),
+            pos=(0, 0.3, 0),
+            bg=(0, 0, 0, 0),
+            fg=(0, 0.7, 1, 1),
+            shadow=(0, 0.0425, 0.0625, 1),
+            scale=0.09,
         )
         menu = Menu(
             {
-                "PLAY AGAIN": (lambda: [
-                    self.start_game(),
-                    t1.destroy(),
-                    t2.destroy(),
-                    menu.hide(),
-                ], (0, -0.2)),
-                "START SCREEN": (lambda: [
-                    self.start_menu.show(),
-                    t1.destroy(),
-                    t2.destroy(),
-                    menu.hide(),
-                ], (0, -0.4)),
+                "PLAY AGAIN": (
+                    lambda: [
+                        self.start_game(),
+                        t1.destroy(),
+                        t2.destroy(),
+                        menu.hide(),
+                    ],
+                    (0, -0.2),
+                ),
+                "START SCREEN": (
+                    lambda: [
+                        self.start_menu.show(),
+                        t1.destroy(),
+                        t2.destroy(),
+                        menu.hide(),
+                    ],
+                    (0, -0.4),
+                ),
                 "QUIT": (sys.exit, (0, -0.6)),
             }
         )
