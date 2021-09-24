@@ -187,7 +187,8 @@ class Game(ShowBase):
         self.ambient_sound.setVolume(0.5)
         self.ambient_sound.setLoop(True)
         self.ambient_sound.play()
-        self.place_track_sound = base.loader.loadSfx("models/place.wav")
+        self.place_track_sound = self.loader.loadSfx("models/place.wav")
+        self.death_sound = self.loader.loadSfx("models/death.wav")
 
         self.accept("aspectRatioChanged", self.set_center)
         self.unpause()
@@ -233,6 +234,7 @@ class Game(ShowBase):
             self.accept(str(i), self.place_track, [collection])
 
     def die(self, cause: str):
+        self.death_sound.play()
         self.pause(show_resume=False)
         for track in self.tracks:
             track.node_path.removeNode()
