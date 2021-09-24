@@ -68,6 +68,8 @@ class Game(ShowBase):
                 "QUIT": (sys.exit, (0, -0.62)),
             }
         )
+        self.accept("escape", sys.exit)
+
         self.start_menu.show()
         self.music = self.loader.loadMusic("models/Guitar-Mayhem-3.mp3")
         self.music.setVolume(0.5)
@@ -109,8 +111,7 @@ class Game(ShowBase):
         self.score_node_path.set_scale(0.1)
         self.score_node_path.set_pos((-1, 0, 0.75))
 
-        self.speed = 7
-        self.acceleration = 1
+        self.speed = 9
         self.track_generator.total_tracks_placed = 0
         self.current_track_index = 0
         self.track_heading = 0
@@ -149,7 +150,6 @@ class Game(ShowBase):
         self.place_track_sound = base.loader.loadSfx("models/place.wav")
 
         self.accept("aspectRatioChanged", self.set_center)
-        self.accept("escape", sys.exit)
         self.unpause()
 
     def pause(self, show_resume: bool = True):
@@ -298,7 +298,7 @@ class Game(ShowBase):
         )
         self.camera.set_pos(self.current_track.normal * 2)
         if self.speed < 20:
-            self.speed += self.acceleration * dt
+            self.speed += dt**2
 
         if base.mouseWatcherNode.hasMouse():
             mx = base.mouseWatcherNode.getMouseX()
