@@ -1,6 +1,7 @@
 import random
 import sys
 from functools import partial
+from textwrap import dedent
 from typing import Set
 
 from direct.gui.DirectButton import DirectButton
@@ -64,8 +65,9 @@ class Game(ShowBase):
         self.start_menu = Menu(
             {
                 "NEW GAME": (self.start_game, (0, -0.1)),
-                "CREDITS": (self.show_credits, (0, -0.45)),
-                "QUIT": (sys.exit, (0, -0.62)),
+                "HOW TO PLAY": (self.show_instructions, (0, -0.29)),
+                "CREDITS": (self.show_credits, (0, -0.47)),
+                "QUIT": (sys.exit, (0, -0.65)),
             }
         )
         self.accept("escape", sys.exit)
@@ -75,6 +77,43 @@ class Game(ShowBase):
         self.music.setVolume(0.5)
         self.music.setLoop(True)
         self.music.play()
+
+    def show_instructions(self):
+        text = OnscreenText(dedent("""\
+        • Welcome to Infinity Coaster! 
+        
+        • We hope you enjoy the ride we have prepared for you-
+          Oh wait. You have to make your own ride. As you go.
+        
+        • There are 6 varieties of tracks you can place.
+        
+        • Random combinations of these will appear when you're close to the end of the track.
+        
+        • Press numbers between 1 and 6 to place the corresponding track.
+        
+        • If you place a track that is currently active, good job! You get to live.
+        
+        • If you cannot press a number in time, or try to place an inactive track, you lose.
+          
+        • Have fun!\
+        """), fg=(1, 1, 1, 1), pos=(0, 0.7), wordwrap=35)
+        b = DirectButton(
+            text="Back",
+            pos=(0, 0, -0.75),
+            scale=(0.1, 1, 0.1),
+            command=lambda: [
+                b.destroy(),
+                text.destroy(),
+                self.start_menu.show(),
+            ],
+            # scale=(0.12, 1, 0.12),
+            text_scale=(0.9, 0.9),
+            text_bg=(0, 0.085, 0.125, 1),
+            text_fg=(0, 0.7, 1, 1),
+            relief=DDG.GROOVE,
+            frameColor=(0, 0.35, 0.5, 1),
+            text_shadow=(0, 0.0425, 0.0625, 1),
+        )
 
     def show_credits(self):
         text1 = OnscreenText("Made by vinam & hsp", fg=(1, 1, 1, 1), pos=(0, 0.2))
@@ -334,9 +373,6 @@ class Game(ShowBase):
             else:
                 icon.hide()
                 # icon.set_color(0, 0, 0, 1)
-
-    def increase_speed_task(self):
-        self.speed += 1
 
 
 if __name__ == "__main__":
