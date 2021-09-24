@@ -73,12 +73,13 @@ class Game(ShowBase):
         self.music.play()
 
     def show_credits(self):
-        _ = OnscreenText("maed by vinam & hsp")
+        text1 = OnscreenText("made by vinam & hsp", fg=(1, 1, 1, 1), pos=(0, 0.2))
+        text2 = OnscreenText("Music by Eric Matyas \n www.soundimage.org", fg=(1, 1, 1, 1), pos=(0, -0.2))
         b = DirectButton(
             text="back",
             pos=(0, 0, -0.75),
             scale=(0.1, 1, 0.1),
-            command=lambda: [b.destroy(), _.destroy(), self.start_menu.show()],
+            command=lambda: [b.destroy(), text1.destroy(), text2.destroy(), self.start_menu.show()],
         )
 
     def start_game(self):
