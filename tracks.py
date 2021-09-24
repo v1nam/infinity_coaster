@@ -151,6 +151,7 @@ class Game(ShowBase):
         self.score_node_path.set_pos((-1, 0, 0.75))
 
         self.speed = 9
+        self.acceleration = 0.4
         self.track_generator.total_tracks_placed = 0
         self.current_track_index = 0
         self.track_heading = 0
@@ -337,7 +338,7 @@ class Game(ShowBase):
         )
         self.camera.set_pos(self.current_track.normal * 2)
         if self.speed < 20:
-            self.speed += dt**2
+            self.speed += self.acceleration * dt
 
         if base.mouseWatcherNode.hasMouse():
             mx = base.mouseWatcherNode.getMouseX()
