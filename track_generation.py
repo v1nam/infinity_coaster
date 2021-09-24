@@ -1,5 +1,6 @@
 from math import pi
 from typing import Optional, Literal
+import random
 
 from direct.showbase.Loader import Loader
 from panda3d.core import NodePath, Point3F, Quat, Vec3
@@ -158,7 +159,7 @@ class TrackCollectionGenerator:
         return self._generate_track_collection(
             start_pos=start_pos,
             initial_heading=initial_heading,
-            num_tracks=num_tracks,
+            num_tracks=random.randint(num_tracks, num_tracks + 10),
             del_pitch_deg=0,
             del_heading_deg=0,
         )
