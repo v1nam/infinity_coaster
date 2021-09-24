@@ -104,13 +104,14 @@ class Game(ShowBase):
         props.setCursorHidden(True)
         base.win.requestProperties(props)
 
-        self.score = 0
         self.score_node = TextNode("score_node")
         self.score_node_path = self.aspect2d.attachNewNode(self.score_node)
         self.score_node_path.set_scale(0.1)
         self.score_node_path.set_pos((-1, 0, 0.75))
 
         self.speed = 12
+        self.track_generator.total_tracks_placed = 0
+        self.current_track_index = 0
         self.track_heading = 0
 
         self.tracks = TrackList(maxlen=100)
@@ -205,7 +206,7 @@ class Game(ShowBase):
             scale=0.1,
         )
         t2 = OnscreenText(
-            text=f"Final Score: {self.score}",
+            text=f"Final Score: {self.current_track_index}",
             pos=(0, 0.3, 0),
             bg=(0, 0, 0, 0),
             fg=(0, 0.7, 1, 1),
@@ -252,7 +253,7 @@ class Game(ShowBase):
             self.track_heading += 90
         if collection == "turn_right":
             self.track_heading -= 90
-        self.currently_active_collections = self.generate_active_collections()
+        self.currently_active_collections = []
         self.update_icon_tray()
 
     def set_tracks(self):
@@ -274,10 +275,16 @@ class Game(ShowBase):
         ).length() > Track.LENGTH:
             if self.current_track.next_track is not None:
                 self.current_track = self.current_track.next_track
-                self.score += 1
+                self.current_track_index += 1
             else:
                 self.die("You didn't place a track in time and died!")
                 return
+        if (
+            self.current_track_index >= self.track_generator.total_tracks_placed - 10
+            and not self.currently_active_collections
+        ):
+            self.currently_active_collections = self.generate_active_collections()
+            self.update_icon_tray()
 
         self.player_node.set_pos(
             self.current_track.start_pos
@@ -301,7 +308,7 @@ class Game(ShowBase):
         return Task.cont
 
     def update_score_task(self, _task):
-        self.score_node.set_text(f"SCORE: {self.score}")
+        self.score_node.set_text(f"SCORE: {self.current_track_index}")
         return Task.cont
 
     def position_skybox_task(self, _task):

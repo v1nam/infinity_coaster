@@ -8,7 +8,9 @@ from panda3d.core import NodePath, Point3F, Quat, Vec3
 class Track:
     LENGTH = 2
 
-    def __init__(self, direction: Vec3, normal: Vec3, start_pos: Point3F, node_path: NodePath):
+    def __init__(
+        self, direction: Vec3, normal: Vec3, start_pos: Point3F, node_path: NodePath
+    ):
         self.direction = direction
         self.normal = normal
         self.next_track = None
@@ -19,7 +21,12 @@ class Track:
 
 
 class TrackList:
-    def __init__(self, head: Optional[Track] = None, tail: Optional[Track] = None, maxlen: Optional[int] = None):
+    def __init__(
+        self,
+        head: Optional[Track] = None,
+        tail: Optional[Track] = None,
+        maxlen: Optional[int] = None,
+    ):
         self.maxlen = maxlen
         self._len = 0
         self.head = head
@@ -72,6 +79,7 @@ class TrackCollectionGenerator:
     def __init__(self, render: NodePath, loader: Loader):
         self.render = render
         self.loader = loader
+        self.total_tracks_placed = 0
 
     def _generate_track_collection(
         self,
@@ -106,12 +114,13 @@ class TrackCollectionGenerator:
         track_normal = Vec3(0, 0, 1)
 
         for i in range(num_tracks):
+            self.total_tracks_placed += 1
             track_dummy_node = NodePath("track_dummy_node")
             track_dummy_node.reparentTo(self.render)
 
             track = self.loader.loadModel("models/trackcoloured.bam")
             track.reparentTo(track_dummy_node)
-            track.setColor((0,0,0,1))
+            track.setColor((0, 0, 0, 1))
             track.set_pos(0, Track.LENGTH / 2, 0)
 
             track_dummy_node.set_pos(start_pos)
@@ -123,7 +132,10 @@ class TrackCollectionGenerator:
             ).normalized()
             track_list.append(
                 Track(
-                    track_direction, track_normal, track_dummy_node.getPos(self.render), track_dummy_node
+                    track_direction,
+                    track_normal,
+                    track_dummy_node.getPos(self.render),
+                    track_dummy_node,
                 )
             )
 
