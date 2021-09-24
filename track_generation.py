@@ -14,7 +14,7 @@ class Track:
         self.direction = direction
         self.normal = normal
         self.next_track = None
-        self.prev_track = None
+        # self.prev_track = None
         self.start_pos = start_pos
         self.end_pos = self.start_pos + self.direction * self.LENGTH
         self.node_path = node_path
@@ -34,7 +34,7 @@ class TrackList:
 
     def append(self, track: Track) -> None:
         self._len += 1
-        track.prev_track = self.tail
+        # track.prev_track = self.tail
         if self.tail:
             self.tail.next_track = track
         track.next_track = None
@@ -50,7 +50,7 @@ class TrackList:
             self.tail.next_track = other.head
         if self.head is None:
             self.head = other.head
-        other.head.prev_track = self.tail
+        # other.head.prev_track = self.tail
         self.tail = other.tail
         while self.maxlen is not None and len(self) > self.maxlen:
             self.popleft()
@@ -61,8 +61,8 @@ class TrackList:
         self._len -= 1
         head = self.head
         self.head = self.head.next_track
-        if self.head:
-            self.head.prev_track = None
+        # if self.head:
+        #     self.head.prev_track = None
         head.node_path.remove_node()
 
     def __iter__(self):
