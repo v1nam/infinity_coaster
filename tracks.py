@@ -79,7 +79,9 @@ class Game(ShowBase):
         self.music.play()
 
     def show_instructions(self):
-        text = OnscreenText(dedent("""\
+        text = OnscreenText(
+            dedent(
+                """\
         • Welcome to Infinity Coaster! 
         
         • We hope you enjoy the ride we have prepared for you-
@@ -96,7 +98,12 @@ class Game(ShowBase):
         • If you cannot press a number in time, or try to place an inactive track, you lose.
           
         • Have fun!\
-        """), fg=(1, 1, 1, 1), pos=(0, 0.7), wordwrap=35)
+        """
+            ),
+            fg=(1, 1, 1, 1),
+            pos=(0, 0.7),
+            wordwrap=35,
+        )
         b = DirectButton(
             text="Back",
             pos=(0, 0, -0.75),
@@ -368,7 +375,13 @@ class Game(ShowBase):
 
     def generate_active_collections(self) -> Set[str]:
         k = random.choices([1, 2, 3], weights=[0.1, 0.8, 0.1], k=1)[0]
-        return set(random.choices(list(self.track_collections.keys()), k=k))
+        return set(
+            random.choices(
+                list(self.track_collections.keys()),
+                weights=[0.21, 0.18, 0.18, 0.18, 0.18, 0.07],
+                k=k,
+            )
+        )
 
     def update_icon_tray(self):
         for icon_name, icon in self.icons.items():
