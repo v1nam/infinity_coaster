@@ -67,7 +67,10 @@ class Game(ShowBase):
             }
         )
         self.start_menu.show()
-        # self.start_game()
+        self.music = self.loader.loadMusic("models/Guitar-Mayhem-3.mp3")
+        self.music.setVolume(0.5)
+        self.music.setLoop(True)
+        self.music.play()
 
     def show_credits(self):
         _ = OnscreenText("maed by vinam & hsp")
@@ -121,6 +124,7 @@ class Game(ShowBase):
         self.mouse_sensitivity = 30
 
         self.ambient_sound = base.loader.loadSfx("models/ambient.wav")
+        self.ambient_sound.setVolume(0.5)
         self.ambient_sound.setLoop(True)
         self.ambient_sound.play()
         self.place_track_sound = base.loader.loadSfx("models/place.wav")
