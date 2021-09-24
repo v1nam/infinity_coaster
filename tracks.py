@@ -239,6 +239,7 @@ class Game(ShowBase):
         for icon in self.icons.values():
             icon.destroy()
         self.score_node_path.removeNode()
+
         t1 = OnscreenText(
             text=cause,
             pos=(0, 0.5, 0),
@@ -255,6 +256,7 @@ class Game(ShowBase):
             shadow=(0, 0.0425, 0.0625, 1),
             scale=0.09,
         )
+
         menu = Menu(
             {
                 "PLAY AGAIN": (
@@ -312,7 +314,7 @@ class Game(ShowBase):
         # print(self.track_heading)
         dt = ClockObject.getGlobalClock().dt
 
-        while (
+        if (
             self.player_node.get_pos() - self.current_track.start_pos
         ).length() > Track.LENGTH:
             if self.current_track.next_track is not None:
