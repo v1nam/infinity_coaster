@@ -19,6 +19,8 @@ from panda3d.core import (
     TextNode,
     AmbientLight,
     DirectionalLight,
+    TextureStage,
+    TexGenAttrib,
 )
 
 from track_generation import Track, TrackCollectionGenerator, TrackList
@@ -29,7 +31,16 @@ class Game(ShowBase):
     def __init__(self):
         super().__init__()
 
-        base.setBackgroundColor(0.05, 0.05, 0.05)
+        cube_map = self.loader.loadCubeMap("models/sky_#.png")
+        self.sky_box = self.loader.loadModel("models/coaster.bam")
+        self.sky_box.setScale(50)
+        self.sky_box.setBin("background", 0)
+        self.sky_box.setDepthWrite(0)
+        self.sky_box.setTwoSided(True)
+        self.sky_box.setTexGen(TextureStage.getDefault(), TexGenAttrib.MWorldCubeMap)
+        self.sky_box.setTexture(cube_map, 1)
+        self.sky_box.reparentTo(self.render)
+
         self.filters = CommonFilters(base.win, base.cam)
         self.filters.setBloom(
             blend=(0, 0, 0, 1), desat=-0.5, intensity=3.0, size="small"
@@ -116,6 +127,7 @@ class Game(ShowBase):
 
     def pause(self, show_resume: bool = True):
         self.taskMgr.remove("MovePlayerTask")
+        self.taskMgr.remove("PositionSkyBoxTask")
         if show_resume:
             b = DirectButton(
                 text="Resume",
@@ -134,6 +146,7 @@ class Game(ShowBase):
     def unpause(self):
         self.taskMgr.add(self.move_player_task, "MovePlayerTask")
         self.taskMgr.add(self.update_score_task, "UpdateScoreTask")
+        self.taskMgr.add(self.position_skybox_task, "PositionSkyBoxTask")
         props = WindowProperties()
         props.setCursorHidden(True)
         base.win.requestProperties(props)
@@ -150,8 +163,14 @@ class Game(ShowBase):
         for icon in self.icons.values():
             icon.destroy()
         self.score_node_path.removeNode()
-        t1 = OnscreenText(text=cause, pos=(0, 0.8, 0), bg=(204/255, 204/255, 204/255, 1))
-        t2 = OnscreenText(text=f"Final Score: {self.score}", pos=(0, 0.7, 0), bg=(204/255, 204/255, 204/255, 1))
+        t1 = OnscreenText(
+            text=cause, pos=(0, 0.8, 0), bg=(204 / 255, 204 / 255, 204 / 255, 1)
+        )
+        t2 = OnscreenText(
+            text=f"Final Score: {self.score}",
+            pos=(0, 0.7, 0),
+            bg=(204 / 255, 204 / 255, 204 / 255, 1),
+        )
         menu = Menu(
             {
                 "Start Screen": lambda: [
@@ -236,6 +255,10 @@ class Game(ShowBase):
 
     def update_score_task(self, _task):
         self.score_node.set_text(f"SCORE: {self.score}")
+        return Task.cont
+
+    def position_skybox_task(self, _task):
+        self.sky_box.set_pos(self.camera.get_pos(self.render))
         return Task.cont
 
     def set_center(self):
