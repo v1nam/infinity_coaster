@@ -84,6 +84,7 @@ class Server(ShowBase):
                 elif message_category == GET_LEADERBOARD:
                     print("rcvd")
                     self.c_writer.send(datagram_from_list(list(self.scores)), datagram.getConnection())
+                    print("sent")
         return Task.cont
 
     def save_to_file_task(self, _task):
