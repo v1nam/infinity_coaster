@@ -5,6 +5,7 @@ from textwrap import dedent
 from typing import Set
 
 from direct.gui.DirectButton import DirectButton
+from direct.gui.DirectEntry import DirectEntry
 from direct.gui import DirectGuiGlobals as DDG
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenText import OnscreenText
@@ -20,7 +21,6 @@ from panda3d.core import (
     WindowProperties,
     TextNode,
     AmbientLight,
-    DirectionalLight,
     TextureStage,
     TexGenAttrib,
     TransparencyAttrib,
@@ -28,6 +28,7 @@ from panda3d.core import (
 
 from track_generation import Track, TrackCollectionGenerator, TrackList
 from menu import Menu
+from client import Client
 
 
 class Game(ShowBase):
@@ -37,6 +38,8 @@ class Game(ShowBase):
         props.set_title("Infinity Coaster")
         props.icon_filename = "models/logo.ico"
         base.win.requestProperties(props)
+
+        self.client = Client("127.0.0.1", 9099)
 
         cube_map = self.loader.loadCubeMap("models/sky_#.png")
         self.sky_box = self.loader.loadModel("models/coaster.bam")
@@ -67,7 +70,7 @@ class Game(ShowBase):
             "turn_right": partial(self.track_generator.generate_turn, type_="right"),
             "loop": self.track_generator.generate_loop,
         }
-        self.accept("escape", sys.exit)
+        self.accept("escape", self.close)
 
         self.music = self.loader.loadMusic("models/Guitar-Mayhem-3.wav")
         self.music.setVolume(0.5)
@@ -84,8 +87,8 @@ class Game(ShowBase):
                 "NEW GAME": (lambda: [self.start_game(), im.destroy(), title.destroy()], (0, -0.2)),
                 "HOW TO PLAY": (lambda: [self.show_instructions(), im.destroy(), title.destroy()], (0, -0.39)),
                 "CREDITS": (lambda: [self.show_credits(), im.destroy(), title.destroy()], (0, -0.57)),
-                "QUIT": (sys.exit, (-1.18, 0.89)),
-                "LEADERBOARD": (lambda: ..., (0, -0.8))
+                "LEADERBOARD": (lambda: [self.show_leaderboard(), im.destroy(), title.destroy()], (0, -0.8)),
+                "QUIT": (self.close, (-1.18, 0.89))
             }
         )
 
@@ -276,14 +279,14 @@ class Game(ShowBase):
             shadow=(0, 0.0425, 0.0625, 1),
             scale=0.09,
         )
-
-        Menu(
+        death_menu = Menu(
             {
                 "PLAY AGAIN": (
                     lambda: [
                         self.start_game(),
                         t1.destroy(),
                         t2.destroy(),
+                        b.destroy()
                     ],
                     (0, -0.2),
                 ),
@@ -292,12 +295,27 @@ class Game(ShowBase):
                         self.show_start_menu(),
                         t1.destroy(),
                         t2.destroy(),
+                        b.destroy()
                     ],
                     (0, -0.4),
                 ),
-                "QUIT": (sys.exit, (0, -0.6)),
+                "QUIT": (self.close, (0, -0.6)),
             }
         )
+
+        b = DirectButton(
+            text="Submit to Leaderboard",
+            pos=(0, 0, -0.83),
+            scale=(0.1, 1, 0.1),
+            command=lambda: [self.show_name_entry(t1, t2, death_menu), b.destroy()],
+            text_scale=(0.9, 0.9),
+            text_bg=(0, 0.085, 0.125, 1),
+            text_fg=(0, 0.7, 1, 1),
+            relief=DDG.GROOVE,
+            frameColor=(0, 0.35, 0.5, 1),
+            text_shadow=(0, 0.0425, 0.0625, 1),
+        )
+
 
     def place_track(self, collection: str):
         if collection not in self.currently_active_collections:
@@ -328,7 +346,6 @@ class Game(ShowBase):
         self.current_track = self.tracks.head
 
     def move_player_task(self, _task):
-        # print(self.track_heading)
         dt = ClockObject.getGlobalClock().dt
 
         if (
@@ -394,12 +411,74 @@ class Game(ShowBase):
     def update_icon_tray(self):
         for icon_name, icon in self.icons.items():
             if icon_name in self.currently_active_collections:
-                # icon.set_color(0, 1, 0, 1)
                 icon.show()
             else:
                 icon.hide()
-                # icon.set_color(0, 0, 0, 1)
 
+    def close(self):
+        try:
+            self.client.close()
+        except TypeError:
+            pass
+        sys.exit()
+
+    def show_leaderboard(self):
+        t1 = None
+        t2 = None
+
+        if self.client.conn:
+            leaderboard = self.client.get_leaderboard()
+            names = "NAME\n\n"
+            scores = "SCORE\n\n"
+            for score, name in reversed(leaderboard):
+                names += f"{name}\n"
+                scores += f"{score}\n"
+            t1 = OnscreenText(names, pos = (-0.5, 0.88, 0),
+                bg=(0, 0, 0, 0),
+                fg=(0, 0.7, 1, 1),
+                shadow=(0, 0.0425, 0.0625, 1),
+                scale=0.1,
+            )
+            t2 = OnscreenText(scores, pos = (0.5, 0.88, 0),
+                bg=(0, 0, 0, 0),
+                fg=(0, 0.7, 1, 1),
+                shadow=(0, 0.0425, 0.0625, 1),
+                scale=0.1,
+            )
+        else:
+            t1 = OnscreenText("Failed to Connect", pos = (0, 0, 0), bg = (0, 0, 0, 0), fg=(0.7, 0.1, 0.1, 1), scale=0.2)
+
+        b = DirectButton(
+            text="Back",
+            pos=(0, 0, -0.7),
+            scale=(0.1, 1, 0.1),
+            command=lambda: [
+                b.destroy(),
+                t1.destroy(),
+                t2.destroy() if t2 else ...,
+                self.show_start_menu()
+            ],
+            text_scale=(0.9, 0.9),
+            text_bg=(0, 0.085, 0.125, 1),
+            text_fg=(0, 0.7, 1, 1),
+            relief=DDG.GROOVE,
+            frameColor=(0, 0.35, 0.5, 1),
+            text_shadow=(0, 0.0425, 0.0625, 1),
+        )
+
+    def show_name_entry(self, t1, t2, death_menu):
+        if self.client.conn:
+            name_entry = DirectEntry(text = "", initialText="Name:", scale=0.08, numLines = 1, focus=1,
+                    pos=(-0.125, 0, -0.83), width=3, relief=DDG.GROOVE, text_fg=(0, 0.7, 1, 1),
+                    frameColor=(0, 0.085, 0.125, 1), text_shadow=(0, 0.0425, 0.0625, 1), borderWidth=(0.5, 0.5),
+                    command=lambda name, score: [self.client.upload_score(name, score), name_entry.destroy(), self.show_start_menu(), t1.destroy(), t2.destroy(), death_menu.destroy()], extraArgs=[self.current_track_index])
+            print("Successfully uploaded score")
+        else:
+            print("Unable to connect...upload failed")
+            t1.destroy()
+            t2.destroy()
+            death_menu.destroy()
+            self.show_start_menu()
 
 if __name__ == "__main__":
     game = Game()
