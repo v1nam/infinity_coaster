@@ -17,6 +17,9 @@ setup(
                 "dna.txt",
                 "models/*"
             ],
+            "exclude_patterns": [
+                "server.py"
+            ],
         }
     }
 )
