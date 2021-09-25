@@ -381,7 +381,7 @@ class Game(ShowBase):
         return set(
             random.choices(
                 list(self.track_collections.keys()),
-                weights=[0.21, 0.18, 0.18, 0.18, 0.18, 0.07],
+                weights=[0.18, 0.18, 0.18, 0.18, 0.18, 0.07],
                 k=k,
             )
         )
