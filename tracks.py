@@ -84,7 +84,8 @@ class Game(ShowBase):
                 "NEW GAME": (lambda: [self.start_game(), im.destroy(), title.destroy()], (0, -0.2)),
                 "HOW TO PLAY": (lambda: [self.show_instructions(), im.destroy(), title.destroy()], (0, -0.39)),
                 "CREDITS": (lambda: [self.show_credits(), im.destroy(), title.destroy()], (0, -0.57)),
-                "QUIT": (sys.exit, (0, -0.75)),
+                "QUIT": (sys.exit, (-1.18, 0.89)),
+                "LEADERBOARD": (lambda: ..., (0, -0.8))
             }
         )
 
