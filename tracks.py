@@ -33,6 +33,10 @@ from menu import Menu
 class Game(ShowBase):
     def __init__(self):
         super().__init__()
+        props = WindowProperties()
+        props.set_title("Infinity Coaster")
+        props.icon_filename = "models/logo.ico"
+        base.win.requestProperties(props)
 
         cube_map = self.loader.loadCubeMap("models/sky_#.png")
         self.sky_box = self.loader.loadModel("models/coaster.bam")
@@ -65,7 +69,7 @@ class Game(ShowBase):
         }
         self.accept("escape", sys.exit)
 
-        self.music = self.loader.loadMusic("models/Guitar-Mayhem-3.mp3")
+        self.music = self.loader.loadMusic("models/Guitar-Mayhem-3.wav")
         self.music.setVolume(0.5)
         self.music.setLoop(True)
         self.music.play()

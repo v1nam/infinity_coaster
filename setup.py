@@ -5,7 +5,7 @@ setup(
     options={
         'build_apps': {
             'gui_apps': {
-                "Infinity Coaster": "tracks.py"
+                "InfinityCoaster": "tracks.py"
             },
             'build_base': "../infinity_build",
             'plugins': [
