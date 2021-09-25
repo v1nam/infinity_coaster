@@ -24,16 +24,11 @@ class Menu:
             for text, (func, (x, z)) in reversed(list(menu_items.items()))
 
         ]
-        self.hide()
 
-    def show(self):
+    def destroy(self):
         for button in self.buttons:
-            button.show()
-
-    def hide(self):
-        for button in self.buttons:
-            button.hide()
+            button.destroy()
 
     def dispatch(self, func):
         func()
-        self.hide()
+        self.destroy()

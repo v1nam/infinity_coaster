@@ -62,7 +62,17 @@ class Game(ShowBase):
             "turn_right": partial(self.track_generator.generate_turn, type_="right"),
             "loop": self.track_generator.generate_loop,
         }
-        self.start_menu = Menu(
+        self.accept("escape", sys.exit)
+
+        self.music = self.loader.loadMusic("models/Guitar-Mayhem-3.mp3")
+        self.music.setVolume(0.5)
+        self.music.setLoop(True)
+        self.music.play()
+        self.show_start_menu()
+
+    def show_start_menu(self):
+        OnscreenImage("models/logo.png", pos=(0, 0, 0.4), scale=(0.4, 1, 0.3))
+        Menu(
             {
                 "NEW GAME": (self.start_game, (0, -0.1)),
                 "HOW TO PLAY": (self.show_instructions, (0, -0.29)),
@@ -70,13 +80,6 @@ class Game(ShowBase):
                 "QUIT": (sys.exit, (0, -0.65)),
             }
         )
-        self.accept("escape", sys.exit)
-
-        self.start_menu.show()
-        self.music = self.loader.loadMusic("models/Guitar-Mayhem-3.mp3")
-        self.music.setVolume(0.5)
-        self.music.setLoop(True)
-        self.music.play()
 
     def show_instructions(self):
         text = OnscreenText(
@@ -111,7 +114,7 @@ class Game(ShowBase):
             command=lambda: [
                 b.destroy(),
                 text.destroy(),
-                self.start_menu.show(),
+                self.show_start_menu(),
             ],
             # scale=(0.12, 1, 0.12),
             text_scale=(0.9, 0.9),
@@ -135,7 +138,7 @@ class Game(ShowBase):
                 b.destroy(),
                 text1.destroy(),
                 text2.destroy(),
-                self.start_menu.show(),
+                self.show_start_menu()
             ],
             # scale=(0.12, 1, 0.12),
             text_scale=(0.9, 0.9),
@@ -266,30 +269,27 @@ class Game(ShowBase):
             scale=0.09,
         )
 
-        menu = Menu(
+        Menu(
             {
                 "PLAY AGAIN": (
                     lambda: [
                         self.start_game(),
                         t1.destroy(),
                         t2.destroy(),
-                        menu.hide(),
                     ],
                     (0, -0.2),
                 ),
                 "START SCREEN": (
                     lambda: [
-                        self.start_menu.show(),
+                        self.show_start_menu(),
                         t1.destroy(),
                         t2.destroy(),
-                        menu.hide(),
                     ],
                     (0, -0.4),
                 ),
                 "QUIT": (sys.exit, (0, -0.6)),
             }
         )
-        menu.show()
 
     def place_track(self, collection: str):
         if collection not in self.currently_active_collections:
