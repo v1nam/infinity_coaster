@@ -71,12 +71,12 @@ class Game(ShowBase):
         self.show_start_menu()
 
     def show_start_menu(self):
-        OnscreenImage("models/logo.png", pos=(0, 0, 0.4), scale=(0.4, 1, 0.3))
+        im = OnscreenImage("models/logo.png", pos=(0, 0, 0.4), scale=(0.4, 1, 0.3))
         Menu(
             {
-                "NEW GAME": (self.start_game, (0, -0.1)),
-                "HOW TO PLAY": (self.show_instructions, (0, -0.29)),
-                "CREDITS": (self.show_credits, (0, -0.47)),
+                "NEW GAME": (lambda: [self.start_game(), im.destroy()], (0, -0.1)),
+                "HOW TO PLAY": (lambda: [self.show_instructions(), im.destroy()], (0, -0.29)),
+                "CREDITS": (lambda: [self.show_credits(), im.destroy()], (0, -0.47)),
                 "QUIT": (sys.exit, (0, -0.65)),
             }
         )
