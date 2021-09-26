@@ -1,6 +1,7 @@
 import random
 import sys
 from functools import partial
+from pathlib import Path
 from textwrap import dedent
 from typing import Set
 
@@ -29,6 +30,11 @@ from panda3d.core import (
 from track_generation import Track, TrackCollectionGenerator, TrackList
 from menu import Menu
 
+HIGH_SCORE_FILE = Path("hs.txt")
+if not HIGH_SCORE_FILE.exists():
+    with open(HIGH_SCORE_FILE, "w") as f:
+        f.write("0")
+
 
 class Game(ShowBase):
     def __init__(self):
@@ -37,7 +43,8 @@ class Game(ShowBase):
         props.set_title("Infinity Coaster")
         props.icon_filename = "models/logo.ico"
         base.win.requestProperties(props)
-
+        with open(HIGH_SCORE_FILE) as f:
+            self.high_score = int(f.read())
         cube_map = self.loader.loadCubeMap("models/sky_#.png")
         self.sky_box = self.loader.loadModel("models/coaster.bam")
         self.sky_box.setScale(50)
@@ -252,6 +259,10 @@ class Game(ShowBase):
 
     def die(self, cause: str):
         self.death_sound.play()
+        if self.current_track_index > self.high_score:
+            self.high_score = self.current_track_index
+            with open(HIGH_SCORE_FILE, "w") as f:
+                f.write(str(self.high_score))
         self.pause(show_resume=False)
         for track in self.tracks:
             track.node_path.removeNode()
@@ -268,7 +279,7 @@ class Game(ShowBase):
             scale=0.1,
         )
         t2 = OnscreenText(
-            text=f"Final Score: {self.current_track_index}",
+            text=f"Final Score: {self.current_track_index} \n High Score: {self.high_score}",
             pos=(0, 0.3, 0),
             bg=(0, 0, 0, 0),
             fg=(0, 0.7, 1, 1),
