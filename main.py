@@ -76,7 +76,7 @@ class Game(ShowBase):
         }
         self.accept("escape", sys.exit)
 
-        self.music = self.loader.loadMusic("aseets/sounds/Guitar-Mayhem-3.wav")
+        self.music = self.loader.loadMusic("assets/music/Guitar-Mayhem-3.wav")
         self.music.setVolume(0.5)
         self.music.setLoop(True)
         self.music.play()
@@ -338,7 +338,6 @@ class Game(ShowBase):
         self.current_track = self.tracks.head
 
     def move_player_task(self, _task):
-        # print(self.track_heading)
         dt = ClockObject.getGlobalClock().dt
 
         if (
@@ -404,11 +403,9 @@ class Game(ShowBase):
     def update_icon_tray(self):
         for icon_name, icon in self.icons.items():
             if icon_name in self.currently_active_collections:
-                # icon.set_color(0, 1, 0, 1)
                 icon.show()
             else:
                 icon.hide()
-                # icon.set_color(0, 0, 0, 1)
 
 
 if __name__ == "__main__":
