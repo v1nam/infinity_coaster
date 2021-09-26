@@ -229,7 +229,9 @@ class Game(ShowBase):
         self.taskMgr.remove("UpdateScoreTask")
         self.taskMgr.remove("PositionSkyBoxTask")
         self.ambient_sound.stop()
+        self.ignore("space")
         if show_resume:
+            self.accept("space", lambda: [b.destroy(), self.unpause()])
             b = DirectButton(
                 text="Resume",
                 pos=(0, 0, 0),
@@ -245,8 +247,7 @@ class Game(ShowBase):
         props = WindowProperties()
         props.setCursorHidden(False)
         base.win.requestProperties(props)
-        self.ignore("space")
-        self.accept("space", self.unpause)
+
         for i, _ in enumerate(self.track_collections.keys(), start=1):
             self.ignore(str(i))
 
