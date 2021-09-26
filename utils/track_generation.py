@@ -119,7 +119,7 @@ class TrackCollectionGenerator:
             track_dummy_node = NodePath("track_dummy_node")
             track_dummy_node.reparentTo(self.render)
 
-            track = self.loader.loadModel("models/trackcoloured.bam")
+            track = self.loader.loadModel("assets/models/trackcoloured.bam")
             track.reparentTo(track_dummy_node)
             track.setColor((0, 0, 0, 1))
             track.set_pos(0, Track.LENGTH / 2, 0)

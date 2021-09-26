@@ -27,8 +27,8 @@ from panda3d.core import (
     TransparencyAttrib,
 )
 
-from track_generation import Track, TrackCollectionGenerator, TrackList
-from menu import Menu
+from utils.track_generation import Track, TrackCollectionGenerator, TrackList
+from utils.menu import Menu
 
 HIGH_SCORE_FILE = Path("hs.txt")
 if not HIGH_SCORE_FILE.exists():
@@ -41,12 +41,12 @@ class Game(ShowBase):
         super().__init__()
         props = WindowProperties()
         props.set_title("Infinity Coaster")
-        props.icon_filename = "models/logo.ico"
+        props.icon_filename = "assets/logo.ico"
         base.win.requestProperties(props)
         with open(HIGH_SCORE_FILE) as f:
             self.high_score = int(f.read())
-        cube_map = self.loader.loadCubeMap("models/sky_#.png")
-        self.sky_box = self.loader.loadModel("models/coaster.bam")
+        cube_map = self.loader.loadCubeMap("assets/skybox/sky_#.png")
+        self.sky_box = self.loader.loadModel("assets/models/box.bam")
         self.sky_box.setScale(50)
         self.sky_box.setBin("background", 0)
         self.sky_box.setDepthWrite(0)
@@ -76,15 +76,15 @@ class Game(ShowBase):
         }
         self.accept("escape", sys.exit)
 
-        self.music = self.loader.loadMusic("models/Guitar-Mayhem-3.wav")
+        self.music = self.loader.loadMusic("aseets/sounds/Guitar-Mayhem-3.wav")
         self.music.setVolume(0.5)
         self.music.setLoop(True)
         self.music.play()
         self.show_start_menu()
 
     def show_start_menu(self):
-        im = OnscreenImage("models/logo.png", pos=(0, 0, 0.6), scale=(0.8, 1, 0.4))
-        title = OnscreenImage("models/title.png", pos=(0, 0, 0.1), scale=(0.8, 1, 0.12))
+        im = OnscreenImage("assets/logo.png", pos=(0, 0, 0.6), scale=(0.8, 1, 0.4))
+        title = OnscreenImage("assets/title.png", pos=(0, 0, 0.1), scale=(0.8, 1, 0.12))
         title.setTransparency(TransparencyAttrib.MAlpha)
         Menu(
             {
@@ -192,7 +192,7 @@ class Game(ShowBase):
         icon_bar_x = 1.33333 - 0.1 - 0.2
         self.icons = {
             icon_name: OnscreenImage(
-                image=f"models/{icon_name}_icon.png",
+                image=f"assets/track_icons/{icon_name}_icon.png",
                 pos=(icon_bar_x, 0, ((7 - i) * 2 / 7) - 1),
                 scale=(0.15, 15, 0.15),
             )
@@ -207,12 +207,12 @@ class Game(ShowBase):
         self.rot_h = 0
         self.mouse_sensitivity = 30
 
-        self.ambient_sound = base.loader.loadSfx("models/ambient.wav")
+        self.ambient_sound = base.loader.loadSfx("assets/sfx/ambient.wav")
         self.ambient_sound.setVolume(0.5)
         self.ambient_sound.setLoop(True)
         self.ambient_sound.play()
-        self.place_track_sound = self.loader.loadSfx("models/place.wav")
-        self.death_sound = self.loader.loadSfx("models/death.wav")
+        self.place_track_sound = self.loader.loadSfx("assets/sfx/place.wav")
+        self.death_sound = self.loader.loadSfx("assets/sfx/death.wav")
 
         self.accept("aspectRatioChanged", self.set_center)
         self.unpause()
