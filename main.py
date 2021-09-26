@@ -88,9 +88,18 @@ class Game(ShowBase):
         title.setTransparency(TransparencyAttrib.MAlpha)
         Menu(
             {
-                "NEW GAME": (lambda: [self.start_game(), im.destroy(), title.destroy()], (0, -0.2)),
-                "HOW TO PLAY": (lambda: [self.show_instructions(), im.destroy(), title.destroy()], (0, -0.39)),
-                "CREDITS": (lambda: [self.show_credits(), im.destroy(), title.destroy()], (0, -0.57)),
+                "NEW GAME": (
+                    lambda: [self.start_game(), im.destroy(), title.destroy()],
+                    (0, -0.2),
+                ),
+                "HOW TO PLAY": (
+                    lambda: [self.show_instructions(), im.destroy(), title.destroy()],
+                    (0, -0.39),
+                ),
+                "CREDITS": (
+                    lambda: [self.show_credits(), im.destroy(), title.destroy()],
+                    (0, -0.57),
+                ),
                 "QUIT": (sys.exit, (0, -0.75)),
             }
         )
@@ -130,7 +139,6 @@ class Game(ShowBase):
                 text.destroy(),
                 self.show_start_menu(),
             ],
-            # scale=(0.12, 1, 0.12),
             text_scale=(0.9, 0.9),
             text_bg=(0, 0.085, 0.125, 1),
             text_fg=(0, 0.7, 1, 1),
@@ -152,9 +160,8 @@ class Game(ShowBase):
                 b.destroy(),
                 text1.destroy(),
                 text2.destroy(),
-                self.show_start_menu()
+                self.show_start_menu(),
             ],
-            # scale=(0.12, 1, 0.12),
             text_scale=(0.9, 0.9),
             text_bg=(0, 0.085, 0.125, 1),
             text_fg=(0, 0.7, 1, 1),
@@ -239,7 +246,7 @@ class Game(ShowBase):
         props.setCursorHidden(False)
         base.win.requestProperties(props)
         self.ignore("space")
-        # self.accept("space", self.unpause)
+        self.accept("space", self.unpause)
         for i, _ in enumerate(self.track_collections.keys(), start=1):
             self.ignore(str(i))
 

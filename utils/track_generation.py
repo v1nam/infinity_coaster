@@ -15,7 +15,6 @@ class Track:
         self.direction = direction
         self.normal = normal
         self.next_track = None
-        # self.prev_track = None
         self.start_pos = start_pos
         self.end_pos = self.start_pos + self.direction * self.LENGTH
         self.node_path = node_path
@@ -35,7 +34,6 @@ class TrackList:
 
     def append(self, track: Track) -> None:
         self._len += 1
-        # track.prev_track = self.tail
         if self.tail:
             self.tail.next_track = track
         track.next_track = None
@@ -51,7 +49,6 @@ class TrackList:
             self.tail.next_track = other.head
         if self.head is None:
             self.head = other.head
-        # other.head.prev_track = self.tail
         self.tail = other.tail
         while self.maxlen is not None and len(self) > self.maxlen:
             self.popleft()
@@ -62,8 +59,6 @@ class TrackList:
         self._len -= 1
         head = self.head
         self.head = self.head.next_track
-        # if self.head:
-        #     self.head.prev_track = None
         head.node_path.remove_node()
 
     def __iter__(self):
@@ -106,10 +101,10 @@ class TrackCollectionGenerator:
         normal_rotation_quat.setFromAxisAngleRad(
             del_pitch,
             {
-                0: Vec3(1, 0, 0),
-                90: Vec3(0, 1, 0),
-                180: Vec3(-1, 0, 0),
-                270: Vec3(0, -1, 0),
+                0.0: Vec3(1, 0, 0),
+                90.0: Vec3(0, 1, 0),
+                180.0: Vec3(-1, 0, 0),
+                270.0: Vec3(0, -1, 0),
             }[heading_deg],
         )
         track_normal = Vec3(0, 0, 1)

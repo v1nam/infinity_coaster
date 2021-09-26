@@ -22,7 +22,6 @@ class Menu:
                 text_shadow=(0, 0.0425, 0.0625, 1),
             )
             for text, (func, (x, z)) in reversed(list(menu_items.items()))
-
         ]
 
     def destroy(self):
